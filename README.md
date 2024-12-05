@@ -1,4 +1,4 @@
-# Art e Fund Frontend
+# Art E Fund Frontend
 
 Frontend created on the most popular react library NextJs.
 ---
