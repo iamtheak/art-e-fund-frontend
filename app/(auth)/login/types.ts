@@ -4,11 +4,3 @@ import { TUser } from "@/global/types";
 
 
 export type TLoginFormProps = z.infer<typeof loginSchema>
-
-
-export type TLoginResponse = {
-    accessToken: string;
-    message: string;
-    user: TUser
-}
-

@@ -1,51 +1,41 @@
-import axios from 'axios';
-import { useGlobalStore } from '../global/store'; 
-import { API_ROUTES, BASE_URL } from './routes';
-import { TRefreshResponse } from '@/global/types';
-
-
+import { auth, signOut } from "@/auth";
+import { TRefreshResponse } from "@/global/types";
+import axios from "axios";
+import { API_ROUTES, BASE_URL } from "./routes";
 
 let isRefreshing = false;
 const axiosInstance = axios.create({
   baseURL: BASE_URL, // Replace with your API base URL
 });
 
+const session = await auth();
 
 export const GetRefreshToken = async () => {
+  try {
+    const localAxios = axios.create({});
 
-    try {
-        const localAxios = axios.create({
-            withCredentials: true,
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
+    const response = await localAxios.post<TRefreshResponse>(
+      BASE_URL + API_ROUTES.AUTH.REFRESH,
+      { refreshToken: session?.user?.refreshToken }
+    );
 
-        const response = await localAxios.post<TRefreshResponse>(BASE_URL + API_ROUTES.AUTH.REFRESH)
+    const data = response.data;
 
-        const data = response.data
+    isRefreshing = false;
 
-        isRefreshing = false
-
-        return data.accessToken ?? ""
-    } catch {
-        // Removes the current token and user details
-
-        useGlobalStore.getState().setToken("")
-
-    }
-
-    isRefreshing = false
-
-}
-
+    return data;
+  } catch {
+    isRefreshing = false;
+    return null;
+  }
+};
 
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const { token } = useGlobalStore.getState();
+    let token = session?.user?.accessToken ?? "";
 
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
 
     return config;
@@ -62,19 +52,32 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry && !isRefreshing) {
+    if (
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !isRefreshing
+    ) {
       originalRequest._retry = true;
 
       try {
-        const newToken = await GetRefreshToken() ?? "";
+        const newToken = (await GetRefreshToken()) ?? "";
 
-        useGlobalStore.getState().setToken(newToken); // Update the token in the store
-        axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+        if (!newToken) {
+          await signOut({ redirectTo: "/login" });
+          return Promise.reject(error);
+        }
+
+        if (session) {
+          session.user.accessToken = newToken.accessToken;
+          session.user.refreshToken = newToken.refreshToken;
+        }
+
+        axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
 
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.error('Failed to refresh token', refreshError);
+        console.error("Failed to refresh token", refreshError);
         // Handle token refresh failure (e.g., redirect to login)
       }
     }

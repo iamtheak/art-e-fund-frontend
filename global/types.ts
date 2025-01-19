@@ -3,16 +3,33 @@ export type TUser = {
     email: string;
     firstName: string;
     lastName: string;
-    roles: Array<"admin" | "user" | "creator">; // or ("admin" | "user" | "creator")[]
-}
-
-export type TGlobalStore = {
-    user: TUser | null;
-    token: string | null;
-    setUser: (user: Partial<TUser>) => void;
-    setToken: (token: string) => void;
+    role: "admin" | "user" | "creator"; // or ("admin" | "user" | "creator")[]
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpires: string;
+    refreshTokenExpires: string;
 }
 
 export type TRefreshResponse = {
-    accessToken: string
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpires: string;
+    refreshTokenExpires: string;
 }
+
+export type TLoginResponse = {
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpires: string;
+    refreshTokenExpires: string;
+    message: string;
+    user: Omit<TUser, 'accessToken' | 'refreshToken' | 'accessTokenExpires' | 'refreshTokenExpires'>;
+}
+
+export type TToken = {
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpires: string;
+    refreshTokenExpires: string;
+}
+

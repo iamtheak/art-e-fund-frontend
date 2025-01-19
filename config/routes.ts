@@ -6,5 +6,11 @@ export const API_ROUTES = {
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
+    GOOGLE_VERIFY: "/auth/google-login"
   },
 };
+
+
+export const AUTHENTICATED_ROUTES = [
+  
+]

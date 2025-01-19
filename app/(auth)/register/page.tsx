@@ -42,7 +42,6 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: TRegisterFormProps) => {
-    console.log("kjsdflksadkjfdsajfadjsl;kf;kj");
     try {
       const response = await registerRequest(data);
       if (response != null) {

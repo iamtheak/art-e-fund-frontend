@@ -1,17 +1,48 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { useGlobalStore } from "@/global/store";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+
+
 
 export default function Home() {
 
-  const { user, token } = useGlobalStore();
 
-  console.log(user, token);
+
+  const session = useSession();
+
+  const [isUser, setIsUser] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session.status === "authenticated") {
+      setIsUser(true);
+    } else {
+      setIsUser(false);
+    }
+  }, [session.data?.user]);
+
+  const handleButtonClick = () => {
+    if(isUser){
+      signOut();
+    }
+    else{
+      router.push("/login");
+    }
+  }
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <Button
+          onClick={handleButtonClick}
+        >
+          {isUser ? "Log out" : "Sign in"}
+        </Button>
+
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -103,10 +134,7 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
-        <Button>
-        My button
-        </Button>
-        
+        <Button>My button</Button>
       </footer>
     </div>
   );

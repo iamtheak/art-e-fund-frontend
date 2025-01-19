@@ -16,8 +16,7 @@ export const registerRequest = async (data: TRegisterFormProps) => {
     return response.data;
 
   } catch (e) {
-    let error = e as AxiosError<string>;
-    
-    throw new Error(error.response?.data || 'Registration failed');
+    let error = e as AxiosError<{errors: string[]}>;
+    throw new Error(error.response?.data.errors[0]);
   }
 };
