@@ -1,24 +1,24 @@
-"use client"
-
-import {AppSidebar} from "@/components/app-sidebar";
+import {AppSidebar, TSideBarData} from "@/components/app-sidebar";
 import {SidebarProvider} from "@/components/ui/sidebar";
 import {Button} from "@/components/ui/button";
-import useClientSession from "@/hooks/use-client-session";
 import {sideBarData, sideBarDataCreator} from "@/app/(pages)/data";
+import {auth} from "@/auth";
 
-const Layout = ({children}: { children: Readonly<React.ReactNode> }) => {
+const Layout = async ({children}: { children: Readonly<React.ReactNode> }) => {
+    const session  = await auth();
 
-
-    const data = useClientSession();
-    console.log(data.user)
-
+    let data : TSideBarData = sideBarData;
+    const isCreator = session?.user.role === "creator";
+    if(isCreator){
+        data = sideBarDataCreator;
+    }
     return (
         <div>
             <SidebarProvider>
                 <AppSidebar
-                    data={data.user != null ? (data.user.role === "creator" ? sideBarDataCreator : sideBarData) : sideBarData}>
+                    data={data}>
                     <div className={"w-full mt-5 flex justify-center"}>
-                        <Button className={"w-[70%]"}>Become a creator</Button>
+                        {!isCreator && <Button className={"w-[70%]"}>Upgrade to creator</Button>}
                     </div>
                 </AppSidebar>
                 <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>

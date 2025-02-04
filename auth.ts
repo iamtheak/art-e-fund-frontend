@@ -5,21 +5,19 @@ import {API_ROUTES, BASE_URL} from "./config/routes";
 import {TLoginResponse, TRefreshResponse, TToken, TUser} from "@/global/types";
 import {AdapterUser} from "@auth/core/adapters";
 
-
 function parseExpiry(dateString: string): number {
     return Date.parse(dateString);
 }
 
 async function refreshAccessToken(token: TToken) {
     try {
-        // Check if refresh token has expired
         if (Date.now() >= parseExpiry(token.refreshTokenExpires)) {
-            throw new Error("RefreshTokenExpired");
+            return {...token, error: "RefreshTokenExpired"};
         }
 
         const response = await axios.post<TRefreshResponse>(
             `${BASE_URL}${API_ROUTES.AUTH.REFRESH}`,
-            token.refreshToken,
+            {refreshToken: token.refreshToken},
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -34,21 +32,15 @@ async function refreshAccessToken(token: TToken) {
             accessTokenExpires: parseExpiry(response.data.accessTokenExpires),
             refreshTokenExpires: parseExpiry(response.data.refreshTokenExpires),
         };
-    } catch (error) {
-        return {
-            ...token,
-            error: error instanceof Error && error.message === "RefreshTokenExpired"
-                ? "RefreshTokenExpired"
-                : "RefreshAccessTokenError",
-        };
+    } catch {
+        return {...token, error: "RefreshAccessTokenError"};
     }
 }
 
 export const {auth, handlers, signIn, signOut} = NextAuth({
     ...authConfig,
     callbacks: {
-        async jwt({token, user, account}) {
-            console.log("token jwt", token)
+        async jwt({token, user, session, account, trigger}) {
             if (account?.provider === "google") {
                 try {
                     const resp = await axios.post<TLoginResponse>(
@@ -63,25 +55,40 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
 
                     return {...resp.data, ...resp.data.user};
                 } catch {
-
-                    return Promise.reject("Invalid google token");
+                    return Promise.reject("InvalidGoogleToken");
                 }
             }
 
+            if (token.error === "RefreshTokenExpired") {
+                return {error: "RefreshTokenExpired"};
+            }
+
             if (token.accessTokenExpires && Date.now() >= parseExpiry(token.accessTokenExpires as string)) {
-                const refreshedToken = await refreshAccessToken({
-                    accessTokenExpires: token.accessTokenExpires,
-                    accessToken: token.accessToken,
-                    refreshToken: token.refreshToken,
-                    refreshTokenExpires: token.refreshTokenExpires,
-                } as TToken);
+                const refreshedToken = await refreshAccessToken(token as TToken);
+
+                if (refreshedToken.error === "RefreshTokenExpired") {
+                    return {error: "RefreshTokenExpired"};
+                }
+
                 return {...refreshedToken, ...user};
             }
+
+            if (trigger === "update" && session) {
+
+                return {...token, ...user, ...session.user};
+            }
+            if (trigger === "update" && session) {
+                return {...token, ...user, ...session.user};
+            }
+
             return {...token, ...user};
         },
 
         async session({session, token}) {
             session.user = {...token, id: token.userId as string, emailVerified: null} as AdapterUser & TUser;
+            if (token.error === "RefreshTokenExpired") {
+                session.user.error = "RefreshTokenExpired";
+            }
             return session;
         },
     },
@@ -91,6 +98,6 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
     },
     session: {
         strategy: "jwt",
-        maxAge: 10 * 24 * 60 * 60,
+        maxAge: 10 * 24 * 60 * 60, // 10 days
     },
 });

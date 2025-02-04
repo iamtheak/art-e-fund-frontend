@@ -26,7 +26,6 @@ export default function LoginPage() {
     const router = useRouter();
     const session = useSession();
 
-    console.log(session);
     const {
         register,
         formState: {errors},

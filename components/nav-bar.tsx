@@ -1,3 +1,0 @@
-const NavBar = () => {
-    return (<>NavBar</>)
-}
