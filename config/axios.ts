@@ -27,5 +27,21 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
 
+        const prevRequest = error.config
+        console.log(prevRequest)
+        const session = await auth();
+        if (error.response?.status === 401 && !prevRequest._retry) {
+            if (session?.user.error === "RefreshAccessTokenError") {
+                await signOut({redirectTo: "/login?error=RefreshTokenExpired"});
+            }
+        }
+
+
+        return Promise.reject(error)
+    },
+)
 export default axiosInstance;

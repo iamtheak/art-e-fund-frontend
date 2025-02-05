@@ -8,12 +8,18 @@ import {Button} from "@/components/ui/button";
 import {useToast} from "@/hooks/use-toast";
 import {TProfileFormValues} from "@/app/(pages)/(settings)/profile/types";
 import {profileFormSchema} from "@/app/(pages)/(settings)/profile/validator";
-import {UpdateProfile} from "@/app/(pages)/(settings)/profile/action";
+import {addProfilePicture, removePicture, UpdateProfile} from "@/app/(pages)/(settings)/profile/action";
 import {useSession} from "next-auth/react";
 import ImageInput from "@/components/image-input/image-input";
+import {useState} from "react";
+import {TUser} from "@/global/types";
 
 
-export function ProfileForm({defaultValues}: { defaultValues: TProfileFormValues }) {
+export function ProfileForm({defaultValues,originalProfilePicture}: {
+    defaultValues: TProfileFormValues,
+    originalProfilePicture: string
+}) {
+
     const form = useForm<TProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         mode: "onChange",
@@ -22,8 +28,11 @@ export function ProfileForm({defaultValues}: { defaultValues: TProfileFormValues
 
     const {toast} = useToast();
     const {update, data: session} = useSession();
-    const handleCropComplete =  (croppedImageData: string) => {
-       console.log(croppedImageData)
+    const [profilePicture, setProfilePicture] = useState<string | null>(null);
+    const [currentProfilePicture,setCurrentProfilePicture] = useState<string | null>(originalProfilePicture)
+
+    const handleCropComplete = (croppedImageData: string) => {
+        setProfilePicture(croppedImageData);
     }
 
     async function onSubmit(data: TProfileFormValues) {
@@ -37,10 +46,20 @@ export function ProfileForm({defaultValues}: { defaultValues: TProfileFormValues
             ),
         })
 
-        const user = await UpdateProfile(data);
+
+        const removeResponse = await removePicture(currentProfilePicture ?? "");
+        if (!removeResponse) {
+            toast({title: "Error", description: "An error occurred while updating your profile."});
+            return;
+        }
+
+        const profilePictureUrl = await addProfilePicture(profilePicture ?? "");
+
+        setCurrentProfilePicture(profilePictureUrl ?? "")
+
+        const user = await UpdateProfile(data, profilePictureUrl ?? "");
 
         if (user === null) {
-
             toast({title: "Error", description: "An error occurred while updating your profile."});
             return;
         }
@@ -51,16 +70,17 @@ export function ProfileForm({defaultValues}: { defaultValues: TProfileFormValues
             ...session,
             user: {
                 ...session.user,
-                ...user,
+                ...user as TUser,
             }
         })
-    }
 
+        toast({title: "Success", description: "Your profile has been updated."});
+    }
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
-                <ImageInput onCropComplete={handleCropComplete} />
+                <ImageInput image={currentProfilePicture ?? undefined} onCropComplete={handleCropComplete}/>
                 <FormField
                     control={form.control}
                     name="firstName"

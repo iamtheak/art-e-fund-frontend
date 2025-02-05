@@ -15,12 +15,12 @@ export default async function Page() {
         lastName: session.user.lastName ?? "",
         userName: session.user.userName ?? "",
         email: session.user.email ?? "",
-        // profilePicture: session.user.profilePicture ?? "",
     };
+
     return (
         <div>
             <h1>Profile</h1>
-            <ProfileForm defaultValues={user}/>
+            <ProfileForm defaultValues={user} originalProfilePicture={session.user.profilePicture ?? ""}/>
 
         </div>
     );

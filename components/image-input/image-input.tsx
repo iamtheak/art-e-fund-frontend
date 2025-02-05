@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useRef} from "react"
+import React, {useEffect, useRef} from "react"
 import {useState, useCallback} from "react"
 import type {TImageInputProps} from "@/components/image-input/types"
 import {Button} from "@/components/ui/button"
@@ -10,14 +10,17 @@ import {cropImage} from "@/components/image-input/helper";
 import Image from "next/image"
 
 const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComplete}) => {
-    const [selectedImage, setSelectedImage] = useState<string | null>(initialImage || null)
+    const [selectedImage, setSelectedImage] = useState<string | null>()
     const [crop, setCrop] = useState<Point>({x: 0, y: 0})
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
     const [isCropping, setIsCropping] = useState(false)
 
-
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(()=>{
+        setSelectedImage(initialImage ?? undefined)
+    },[initialImage])
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -31,7 +34,7 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
     }
 
     const onCropCompleteCallback = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
-        setCroppedAreaPixels(croppedArea)
+        setCroppedAreaPixels(croppedAreaPixels)
     }, [])
 
     const createCroppedImage = useCallback(async (imageSource: string, pixelCrop: Area) => cropImage(imageSource, pixelCrop), [])
@@ -41,6 +44,8 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
             try {
                 const croppedImageData = await createCroppedImage(selectedImage, croppedAreaPixels)
                 onCropComplete(croppedImageData)
+
+                setSelectedImage(croppedImageData)
                 setIsCropping(false)
             } catch (e) {
                 console.error(e)
@@ -54,7 +59,6 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
         setZoom(1)
         setCrop({x: 0, y: 0})
     }
-
     return (
         <div className="flex flex-col items-center space-y-4">
             {selectedImage ? (
@@ -84,7 +88,7 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
 
                 ) : (
                     <div className="relative w-64 h-64 overflow-hidden rounded-full">
-                        <Image width={50} height={50} className={"h-full w-full object-cover"}
+                        <Image width={100} height={100} className={"h-full w-full object-cover"}
                                src={selectedImage || "/placeholder.svg"} alt="Selected image"/>
                     </div>
                 )
@@ -103,7 +107,6 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
                     {selectedImage ? "Change Image" : "Select Image"}
                 </Button>
                 {selectedImage && !isCropping && <Button onClick={() => {
-
                     setSelectedImage(null)
                 }}>
                     Remove Image

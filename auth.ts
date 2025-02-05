@@ -6,18 +6,20 @@ import {TLoginResponse, TRefreshResponse, TToken, TUser} from "@/global/types";
 import {AdapterUser} from "@auth/core/adapters";
 
 function parseExpiry(dateString: string): number {
+
     return Date.parse(dateString);
 }
 
 async function refreshAccessToken(token: TToken) {
     try {
+
         if (Date.now() >= parseExpiry(token.refreshTokenExpires)) {
             return {...token, error: "RefreshTokenExpired"};
         }
 
         const response = await axios.post<TRefreshResponse>(
-            `${BASE_URL}${API_ROUTES.AUTH.REFRESH}`,
-            {refreshToken: token.refreshToken},
+            `https://localhost:44342/api/auth/refresh`,
+            token.refreshToken,
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -33,6 +35,7 @@ async function refreshAccessToken(token: TToken) {
             refreshTokenExpires: parseExpiry(response.data.refreshTokenExpires),
         };
     } catch {
+
         return {...token, error: "RefreshAccessTokenError"};
     }
 }
