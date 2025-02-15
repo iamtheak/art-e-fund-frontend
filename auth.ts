@@ -10,9 +10,15 @@ function parseExpiry(dateString: string): number {
     return Date.parse(dateString);
 }
 
-async function refreshAccessToken(token: TToken) {
-    try {
+let isRefreshing = false;
 
+async function refreshAccessToken(token: TToken) {
+
+    if (isRefreshing) {
+        return {...token}
+    }
+    isRefreshing = true;
+    try {
         if (Date.now() >= parseExpiry(token.refreshTokenExpires)) {
             return {...token, error: "RefreshTokenExpired"};
         }
@@ -34,9 +40,12 @@ async function refreshAccessToken(token: TToken) {
             accessTokenExpires: parseExpiry(response.data.accessTokenExpires),
             refreshTokenExpires: parseExpiry(response.data.refreshTokenExpires),
         };
-    } catch {
+    } catch (e) {
+        console.log(e)
 
         return {...token, error: "RefreshAccessTokenError"};
+    } finally {
+        isRefreshing = false;
     }
 }
 
@@ -62,11 +71,9 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
                 }
             }
 
-            if (token.error === "RefreshTokenExpired") {
-                return {error: "RefreshTokenExpired"};
-            }
 
             if (token.accessTokenExpires && Date.now() >= parseExpiry(token.accessTokenExpires as string)) {
+
                 const refreshedToken = await refreshAccessToken(token as TToken);
 
                 if (refreshedToken.error === "RefreshTokenExpired") {
@@ -91,13 +98,16 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
             session.user = {...token, id: token.userId as string, emailVerified: null} as AdapterUser & TUser;
             if (token.error === "RefreshTokenExpired") {
                 session.user.error = "RefreshTokenExpired";
+            } else {
+                session.user.error = null;
             }
+
             return session;
         },
     },
     pages: {
         signIn: "/login",
-        signOut: "/",
+        signOut: "/login",
     },
     session: {
         strategy: "jwt",

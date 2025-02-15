@@ -1,20 +1,13 @@
 "use client";
 import FloatingInput from "@/components/floating-input/floating-input";
 import {Button} from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card";
 import {Separator} from "@/components/ui/separator";
 import {useToast} from "@/hooks/use-toast";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {signIn, useSession} from "next-auth/react";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {useEffect} from "react";
 import {useForm} from "react-hook-form";
 import {loginRequest} from "./action";
@@ -39,21 +32,22 @@ export default function LoginPage() {
         },
     });
 
+    const params = useSearchParams();
 
-    const sendtoDashboard = () => {
-        let user = session.data?.user;
+    useEffect(() => {
+        if (params) {
 
-        if (session.status !== "authenticated") {
-            return;
+            const val = params.get("error");
+
+            if (val != null) {
+
+                toast({title: "Error", description: val});
+            }
+
         }
-        if (user?.role === "user") {
-            router.push("/home");
-        } else {
-            router.push("/");
-        }
-    }
+    }, [params, toast]);
 
-    useEffect(sendtoDashboard, [session.data?.user]);
+
 
     const onSubmit = async (data: TLoginFormProps) => {
         try {
@@ -161,7 +155,7 @@ export default function LoginPage() {
                     </form>
                 </CardContent>
                 <CardFooter className="text-center text-sm text-gray-600">
-                    Don't have an account?{" "}
+                    Don&#39;t have an account?{" "}
                     <Link
                         href="/register"
                         className="font-medium text-blue-600 hover:underline"

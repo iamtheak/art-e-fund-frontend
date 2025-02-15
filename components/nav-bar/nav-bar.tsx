@@ -1,7 +1,4 @@
 import {getUserFromSession} from "@/global/helper";
-import {Button} from "@/components/ui/button";
-import Link from "next/link";
-import {redirect} from "next/navigation";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import NavList from "@/components/nav-bar/nav-list";
 
@@ -9,7 +6,6 @@ const NavBar = async () => {
 
     const user = await getUserFromSession();
     const isCreator = user?.role === "creator";
-    const buttonClass = "bg-emerald h-8 text-white rounded-md py-2 px-4";
     let avatarFallback = "AF";
     if (user != null) {
         avatarFallback = user?.firstName[0].toString().toUpperCase() ?? "A" + user?.lastName[0].toUpperCase() ?? "F";
@@ -17,7 +13,7 @@ const NavBar = async () => {
 
 
     return (
-        <header className={"w-full shadow-md"}>
+        <header className={"w-full shadow-md sticky top-0 z-50"}>
             <nav className=" max-w-[1290px] m-auto flex justify-between py-3 px-2 align-middle">
                 <div>
                     <Avatar>

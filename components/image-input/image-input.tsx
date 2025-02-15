@@ -124,9 +124,6 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
                     className="w-full max-w-xs"
                 />
             )}
-            <div id={"prev"}>
-
-            </div>
         </div>
     )
 }

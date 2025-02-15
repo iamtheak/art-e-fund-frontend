@@ -8,6 +8,13 @@ export const API_ROUTES = {
         REFRESH: "/auth/refresh",
         GOOGLE_VERIFY: "/auth/google-login"
     },
+    CREATOR: {
+        BASE: "/creators",
+        USER_ID: "/creators/user/",
+        USERNAME: "/creators/username/",
+        CONTENT_TYPE: "/creators/content-type",
+
+    },
     USER: "/user",
 };
 

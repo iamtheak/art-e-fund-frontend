@@ -1,4 +1,4 @@
-import InfoTab from "@/app/new-signin/_components/info";
+import InfoTab from "@/app/new-signin/bio/_components/info";
 
 export default function Bio(){
     return (

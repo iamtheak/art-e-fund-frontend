@@ -13,6 +13,14 @@ export type TUser = {
     error?: string | null;
 }
 
+export type TCreator = Pick<TUser, 'userId' | 'userName' | 'profilePicture' | 'role' | 'firstName' | 'lastName' | 'email'> & {
+    creatorId: number;
+    creatorDescription: string;
+    creatorBio: string;
+    creatorGoal: string;
+    contentType: string;
+}
+
 export type TRefreshResponse = {
     accessToken: string;
     refreshToken: string;

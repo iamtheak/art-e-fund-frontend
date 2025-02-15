@@ -1,50 +1,29 @@
-"use client"
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {useState} from "react";
-import ContentTab from "@/app/new-signin/_components/content";
-import InfoTab from "@/app/new-signin/_components/info";
+import {Card, CardContent, CardFooter, CardHeader} from "@/components/ui/card";
+import contentImage from "@/public/new-sigin/pexels-magda-ehlers-pexels-1054713.jpg";
+import Image from "next/image";
+import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 export default function NewCreator() {
 
-    const contents: {
-        contentId: number,
-        contentType: string
-    }[] = [{contentId: 1, contentType: "Informative content"}, {
-        contentId: 2,
-        contentType: "Fashion"
-    }, {contentId: 3, contentType: "Art"}, {contentId: 4, contentType: "Music"}, {
-        contentId: 5,
-        contentType: "Podcasts"
-    }, {contentId: 6, contentType: "Other"}];
-
-
-    const [currentTab, setCurrentTab] = useState<"content" | "info" | "payment">("content");
-
-    const [choosenContent, setChoosenContent] = useState<number | null>(null);
-
-
     return (
-        <div className={"flex items-center justify-center flex-col w-1/2 rounded-md p-2 bg-neutral-300 shadow-md"}>
-            <div className={"text-center mb-5"}>
+        <Card className={"flex items-center justify-center flex-col w-1/2 rounded-md p-2 shadow-md"}>
+            <CardHeader className={"text-center mb-5"}>
                 <h1 className={"text-[40px] font-bold"}>Hello New Creator ❤️!</h1>
+                <p>Lets get your journey started right away ! </p>
 
-                <p>Here you can create a new creator account.</p>
-            </div>
+            </CardHeader>
+            <CardContent className={"w-full relative h-[50vh]"}>
+                <Image src={contentImage} fill alt={"content creation"} className={"w-[80%] h-full object-cover"}/>
+            </CardContent>
 
-            <Tabs className={"w-full"} value={currentTab}>
-                <TabsList className={"grid grid-cols-3"}>
-                    <TabsTrigger onClick={()=> setCurrentTab("content")} value={"content"}>Choose the type of content</TabsTrigger>
-                    <TabsTrigger onClick={()=> setCurrentTab("info")} value={"info"}>Write about yourself</TabsTrigger>
-                    <TabsTrigger onClick={()=> setCurrentTab("payment")} value={"payment"}>Add you payment method</TabsTrigger>
-                </TabsList>
+            <CardFooter className={"mt-5 flex gap-4 flex-col"}>
+                <p>Ready to dive in?</p>
+                <Button asChild>
+                    <Link href={"/new-signin/content"}>Lets Go !</Link>
+                </Button>
+            </CardFooter>
 
-                <TabsContent value={"content"}>
-                    <ContentTab choosenContent={choosenContent} setCurrentTab={setCurrentTab} contents={contents} setChoosenContent={setChoosenContent}/>
-                </TabsContent>
-                <TabsContent value={"info"}>
-                    <InfoTab/>
-                </TabsContent>
-            </Tabs>
-        </div>
+        </Card>
     );
 }
