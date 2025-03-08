@@ -11,9 +11,8 @@ const NavBar = async () => {
         avatarFallback = user?.firstName[0].toString().toUpperCase() ?? "A" + user?.lastName[0].toUpperCase() ?? "F";
     }
 
-
     return (
-        <header className={"w-full shadow-md sticky top-0 z-50"}>
+        <header className={"w-full bg-white shadow-md sticky top-0 z-50"}>
             <nav className=" max-w-[1290px] m-auto flex justify-between py-3 px-2 align-middle">
                 <div>
                     <Avatar>

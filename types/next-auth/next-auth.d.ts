@@ -10,6 +10,7 @@ declare module "next-auth" {
         email: string;
         firstName: string;
         lastName: string;
+        userName: string;
         role: "admin" | "user" | "creator";
         accessToken: string;
         refreshToken: string;
@@ -17,6 +18,7 @@ declare module "next-auth" {
         refreshTokenExpires: string;
         profilePicture: string;
         error?: string | null;
+        creatorId?: number;
     }
 }
 

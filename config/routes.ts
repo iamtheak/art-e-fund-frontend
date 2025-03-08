@@ -13,7 +13,14 @@ export const API_ROUTES = {
         USER_ID: "/creators/user/",
         USERNAME: "/creators/username/",
         CONTENT_TYPE: "/creators/content-type",
-
+    },
+    MEMBERSHIP: {
+        BASE: "/membership",
+        USER: "/membership/user",
+        CREATOR: {
+            BASE: "/membership/creator",
+            userName: "/membership/creator/username",
+        },
     },
     USER: "/user",
 };

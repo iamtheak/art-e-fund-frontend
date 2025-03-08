@@ -23,7 +23,7 @@ export const BaseInput = React.forwardRef<HTMLInputElement, IBaseInputProps>(
                 {showLabel && (
                     <Label
                         htmlFor="username"
-                        className="mb-2 capitalize text-[12px]"
+                        className="mb-2 capitalize"
                     >
                         {label}{' '}
                         {required && <span className="text-kavya-red">*</span>}

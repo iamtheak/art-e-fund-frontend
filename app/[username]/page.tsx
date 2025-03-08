@@ -1,7 +1,11 @@
 import {Progress} from "@/components/ui/progress";
 import Link from "next/link";
 import {Icon} from "@iconify/react";
-import Donate from "@/app/[username]/_components/donate";
+import Donate from "@/app/[username]/_components/donate-box/donate";
+import {getUserFromSession} from "@/global/helper";
+import {TCreator} from "@/global/types";
+import axiosInstance from "@/config/axios";
+import {API_ROUTES} from "@/config/routes";
 
 export default async function Page({
                                        params,
@@ -9,6 +13,16 @@ export default async function Page({
     params: Promise<{ username: string }>;
 }) {
     const slug = (await params).username;
+
+    const auth = await getUserFromSession();
+
+    const paramData = await params;
+    const isSameUser = auth?.userName === paramData.username;
+    let creator: TCreator | null = null;
+
+    const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + paramData.username)
+    creator = response.data;
+
 
     return (
         <div className={"flex gap-3 py-4"}>
@@ -26,18 +40,11 @@ export default async function Page({
 
                 <div className={"bg-mint rounded-xl p-5"}>
 
-                    <h2 className={"text-xl mb-4"}>
-                        About {slug}
+                    <h2 className={"text-2xl mb-4"}>
+                        About {creator?.userName}
                     </h2>
                     <p className={"mb-2"}>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum consectetur ante, sit
-                        amet suscipit mi tempus eu. Mauris interdum turpis vel felis pharetra cursus. Maecenas feugiat
-                        pharetra ultricies. In consequat, eros ac congue vulputate, purus eros dignissim eros, vel
-                        eleifend lorem tortor sit amet dolor. Quisque iaculis vestibulum massa vel cursus. Sed aliquet,
-                        dolor ac varius mattis, augue mi tempor ipsum, in pretium urna sem eget est. Duis suscipit magna
-                        quis odio pulvinar scelerisque. Vivamus elit lectus, condimentum porta orci et, tempus porttitor
-                        nibh. Fusce laoreet consectetur dui. Suspendisse potenti. Proin consectetur iaculis velit, sit
-                        amet porttitor diam. Suspendisse potenti. Aliquam imperdiet id leo ac faucibus.
+                        {creator?.creatorBio}
                     </p>
 
                     <div className={"flex justify-end gap-4"}>
@@ -56,7 +63,7 @@ export default async function Page({
             </div>
 
             <div className={"w-[60%]"}>
-                <Donate username={slug}/>
+                <Donate userName={slug} creatorId={creator?.creatorId}/>
             </div>
         </div>
     );

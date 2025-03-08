@@ -32,7 +32,7 @@ export function AppSidebar({data, children, ...props}: {
 
 
     return (
-        <Sidebar {...props}  variant={"sidebar"}>
+        <Sidebar {...props}  collapsible={"none"} variant={"sidebar"}>
 
             <SidebarContent>
                 {/* We create a SidebarGroup for each parent. */}

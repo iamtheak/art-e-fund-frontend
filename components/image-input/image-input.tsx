@@ -8,6 +8,7 @@ import {Input} from "@/components/ui/input"
 import Cropper, {Area, Point} from "react-easy-crop"
 import {cropImage} from "@/components/image-input/helper";
 import Image from "next/image"
+import {Icon} from "@iconify/react";
 
 const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComplete}) => {
     const [selectedImage, setSelectedImage] = useState<string | null>()
@@ -18,9 +19,9 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
 
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(()=>{
+    useEffect(() => {
         setSelectedImage(initialImage ?? undefined)
-    },[initialImage])
+    }, [initialImage])
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -58,13 +59,14 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
         setIsCropping(false)
         setZoom(1)
         setCrop({x: 0, y: 0})
+        setSelectedImage(initialImage ?? undefined)
     }
     return (
-        <div className="flex flex-col items-center space-y-4">
+        <div className=" w-full flex  flex-col items-center space-y-4">
             {selectedImage ? (
                 isCropping ? (
                     <>
-                        <div className="relative w-80 h-80">
+                        <div className="relative w-40 h-40">
                             <Cropper
                                 image={selectedImage}
                                 crop={crop}
@@ -80,20 +82,20 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
                                 maxZoom={3}
                             />
                         </div>
-                        <div className="bottom-[-50px] left-0 right-0 flex justify-center space-x-2">
+                        <div className=" flex justify-center space-x-2">
                             <Button type={"button"} onClick={handleCropCancel}>Cancel</Button>
                             <Button type={"button"} onClick={handleCropConfirm}>Confirm</Button>
                         </div>
                     </>
 
                 ) : (
-                    <div className="relative w-64 h-64 overflow-hidden rounded-full">
+                    <div className={"w-40 h-40 overflow-hidden rounded-full" }>
                         <Image width={100} height={100} className={"h-full w-full object-cover"}
                                src={selectedImage || "/placeholder.svg"} alt="Selected image"/>
                     </div>
                 )
             ) : (
-                <div className="w-64 h-64 bg-gray-200 flex items-center justify-center rounded-full">
+                <div className="w-40 h-40 bg-gray-200 flex items-center justify-center rounded-full">
                     <span className="text-gray-500">No image selected</span>
                 </div>
             )}
@@ -101,15 +103,19 @@ const ImageInput: React.FC<TImageInputProps> = ({image: initialImage, onCropComp
                    id="image-input"/>
             <div className={"flex gap-3"}>
 
-                <Button type={"button"} onClick={() => {
-                    inputRef.current?.click();
-                }}>
-                    {selectedImage ? "Change Image" : "Select Image"}
-                </Button>
+                {
+                    !isCropping &&
+                    <Button className={" left-0"} type={"button"} onClick={() => {
+                        inputRef.current?.click();
+                    }}>
+                        <Icon icon="ri:edit-fill"/>
+                    </Button>
+                }
                 {selectedImage && !isCropping && <Button onClick={() => {
                     setSelectedImage(null)
+                    setIsCropping(false)
                 }}>
-                    Remove Image
+                    <Icon icon="ri:delete-bin-6-fill"/>
                 </Button>}
             </div>
             {isCropping && (

@@ -2,8 +2,9 @@ import NextAuth from "next-auth";
 import {authConfig} from "./auth.config";
 import axios from "axios";
 import {API_ROUTES, BASE_URL} from "./config/routes";
-import {TLoginResponse, TRefreshResponse, TToken, TUser} from "@/global/types";
+import {TCreator, TLoginResponse, TRefreshResponse, TToken, TUser} from "@/global/types";
 import {AdapterUser} from "@auth/core/adapters";
+import axiosInstance from "@/config/axios";
 
 function parseExpiry(dateString: string): number {
 
@@ -84,12 +85,10 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
             }
 
             if (trigger === "update" && session) {
+                return {...token, ...user, ...session.user};
+            }
 
-                return {...token, ...user, ...session.user};
-            }
-            if (trigger === "update" && session) {
-                return {...token, ...user, ...session.user};
-            }
+
 
             return {...token, ...user};
         },

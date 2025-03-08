@@ -11,14 +11,20 @@ export type TUser = {
     refreshTokenExpires: string;
     profilePicture: string;
     error?: string | null;
+    creatorId?: number;
 }
 
-export type TCreator = Pick<TUser, 'userId' | 'userName' | 'profilePicture' | 'role' | 'firstName' | 'lastName' | 'email'> & {
+export type TCreator =
+    Pick<TUser, 'userId' | 'userName' | 'profilePicture' | 'role' | 'firstName' | 'lastName' | 'email'>
+    & {
     creatorId: number;
     creatorDescription: string;
     creatorBio: string;
     creatorGoal: string;
     contentType: string;
+    creatorBanner: string;
+    hasPosts: boolean;
+    hasMembership: boolean;
 }
 
 export type TRefreshResponse = {
@@ -45,3 +51,11 @@ export type TToken = {
     error?: string | null;
 }
 
+export type TMembership = {
+    membershipId: number
+    membershipTier: number
+    membershipName: string
+    creatorId: number,
+    membershipAmount: number
+    membershipBenefits: string
+}

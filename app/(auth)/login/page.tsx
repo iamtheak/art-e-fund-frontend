@@ -13,6 +13,7 @@ import {useForm} from "react-hook-form";
 import {loginRequest} from "./action";
 import {loginSchema} from "./validator";
 import {TLoginFormProps} from "@/app/(auth)/login/types";
+import {TLocalUser} from "@/app/(auth)/register/types";
 
 export default function LoginPage() {
     const {toast} = useToast();
@@ -66,6 +67,21 @@ export default function LoginPage() {
                 title: "Success",
                 description: "Logged in successfully",
             });
+
+
+            const localUser = localStorage.getItem("localUser")
+
+            if (localUser) {
+                localStorage.removeItem("localUser")
+
+                const newUser: TLocalUser = JSON.parse(localUser)
+
+
+                if(newUser.email === data.email && newUser.newSignIn) {
+                    router.push("/new-signin/new-user")
+                }
+            }
+
 
             router.refresh(); // This will update the server components and trigger a re-render
         } catch {

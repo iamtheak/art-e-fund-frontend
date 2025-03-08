@@ -17,7 +17,7 @@ export default function ContentTab() {
     const {data: contents, isLoading, error} = useQuery({
         queryKey: ['contentTypes'],
         queryFn: getContentTypes,
-        staleTime: 1000,
+        staleTime: Infinity,
     });
 
 

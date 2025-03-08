@@ -1,76 +1,122 @@
 import NavBar from "@/components/nav-bar/nav-bar";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
+import CreatorAvatar from "@/app/[username]/_components/avatar";
+import {getUserFromSession} from "@/global/helper";
+import {Avatar, AvatarFallback} from "@/components/ui/avatar";
+import CreatorBanner from "@/app/[username]/_components/creator-banner/creator-banner";
+import axiosInstance from "@/config/axios";
+import {TCreator} from "@/global/types";
+import {API_ROUTES} from "@/config/routes";
+import {redirect} from "next/navigation";
+import BannerDialogContent from "@/app/[username]/_components/creator-banner/dialog-content";
+import Image from "next/image";
+import DonationDialog from "@/app/[username]/_components/donation-dialog/donation-dialog";
 
-export default function Layout({children, params}: {
+export default async function Layout({children, params}: {
     children: React.ReactNode,
     params: { username: string },
 }) {
 
+    const auth = await getUserFromSession();
+
+    const paramData = await params;
+    const isSameUser = auth?.userName === paramData.username;
+    let creator: TCreator | null = null;
+
+    try {
+        const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + paramData.username)
+        creator = response.data;
+    } catch {
+        redirect("/error")
+    }
+
     return (<>
             <NavBar/>
-            <main className="max-w-[1080px] m-auto">
+            <main className="max-w-[1080px] relative m-auto">
 
-                <div className={"flex justify-center items-center flex-col"}>
-                    <div className={"w-full bg-mint h-80"}>
-                    </div>
+                <div className={" relative flex justify-center items-center flex-col"}>
 
-                    <div className={"w-full mt-[-20px]  px-5 py-2 rounded-md bg-emerald"}>
+                    {creator?.creatorBanner ? <CreatorBanner image={creator?.creatorBanner}/> :
+                        <div className={"w-full bg-mint h-80"}>
+                        </div>
+                    }
+
+                    {
+                        isSameUser && <BannerDialogContent creator={creator}/>
+                    }
+
+                    <div className={"w-full z-20 px-5 py-2 rounded-md bg-emerald"}>
 
                         <div className={"w-full flex justify-between"}>
                             <div className={"flex justify-center gap-6"}>
-                                <Avatar className={"w-32 h-32"}>
-                                    <AvatarImage className={"w-full h-full"} src={"https://github.com/shadcn.png"}
-                                                 alt={"Avatar"}/>
-                                    <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
 
-                                <div>
-                                    <h1 className={"text-3xl"}>{params.username}</h1>
-                                    <p className={"text-gray-500"}>This is the page of {params.username}</p>
+                                {
+                                    isSameUser ?
+                                        <CreatorAvatar user={auth}/>
+                                        :
+                                        (<Avatar className={"w-40 h-40"}>
+                                            <Image src={creator?.profilePicture} fill
+                                                   alt={"Profile picture of " + creator?.userName}/>
+
+                                            <AvatarFallback>{creator?.userName}</AvatarFallback>
+                                        </Avatar>)
+                                }
+
+                                <div className={"w-[40%] relative"}>
+                                    <h1 className={"text-3xl"}>{creator?.userName}</h1>
+                                    <p className={"text-gray-500 w-full"}>This is the page of {creator?.userName}</p>
                                 </div>
                             </div>
 
                             <div className={"flex gap-2 justify-items-start items-end flex-col"}>
-                                <div className={"flex gap-3"}>
-
-                                    <Button>
-                                        Donate
-                                    </Button>
-                                    <Button>
-                                        Follow
-                                    </Button>
-                                </div>
-
+                                {
+                                    !isSameUser &&
+                                    <div className={"flex gap-3"}>
+                                        <DonationDialog userName={creator?.userName} creatorId={creator?.creatorId} />
+                                        <Button>
+                                            Follow
+                                        </Button>
+                                    </div>
+                                }
                                 <span>
                                     Join 3000 followers
                                 </span>
+
                             </div>
                         </div>
 
                         <div className={"flex justify-center gap-5 items-center bg-emerald mt-5 "}>
-                            <Link
-                                href={`/${params.username}`}
-                                className={`w-24 text-center pb-1 border-b-4 border-white}`}
-                            >
-                                About
-                            </Link>
-                            <Link
-                                href={`/${params.username}/posts`}
-                                className={`w-24 text-center pb-1 border-b-2 border-white }`}
-                            >
-                                Posts
-                            </Link>
-                            <Link
-                                href={`/${params.username}/memberships`}
-                                className={`w-24 text-center pb-1 border-b-2 border-white}`}
-                            >
-                                Memberships
-                            </Link>
+
+                            {
+                                creator?.hasPosts || creator?.hasMembership &&
+                                <Link
+                                    href={`/${creator?.userName}`}
+                                    className={`w-24 text-center pb-1 border-b-4 border-white}`}
+                                >
+                                    About
+                                </Link>
+                            }
+                            {
+                                !isSameUser && creator?.hasPosts &&
+                                <Link
+                                    href={`/${creator?.userName}/posts`}
+                                    className={`w-24 text-center pb-1 border-b-2 border-white }`}
+                                >
+                                    Posts
+                                </Link>
+                            }
+                            {
+                                !isSameUser && creator?.hasMembership &&
+                                <Link
+                                    href={`/${creator?.userName}/memberships`}
+                                    className={`w-24 text-center pb-1 border-b-2 border-white}`}
+                                >
+                                    Memberships
+                                </Link>
+                            }
                         </div>
                     </div>
-
                 </div>
                 {children}
             </main>

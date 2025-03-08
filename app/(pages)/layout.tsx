@@ -1,49 +1,45 @@
-import {AppSidebar, TSideBarData} from "@/components/app-sidebar";
-import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
-import {Button} from "@/components/ui/button";
-import {sideBarData, sideBarDataCreator} from "@/app/(pages)/data";
-import {auth} from "@/auth";
-import Link from "next/link";
-import NavBar from "@/components/nav-bar/nav-bar";
+import type {ReactNode} from "react"
+import Link from "next/link"
+import {AppSidebar, type TSideBarData} from "@/components/app-sidebar"
+import {SidebarProvider} from "@/components/ui/sidebar"
+import {Button} from "@/components/ui/button"
+import NavBar from "@/components/nav-bar/nav-bar"
+import {sideBarData, sideBarDataCreator} from "@/app/(pages)/data"
+import {getUserFromSession} from "@/global/helper";
 
-const Layout = async ({children}: { children: Readonly<React.ReactNode> }) => {
-    const session = await auth();
+interface LayoutProps {
+    children: ReactNode
+}
 
-    let data: TSideBarData = sideBarData;
-    const isCreator = session?.user.role === "creator";
-    if (isCreator) {
-        data = sideBarDataCreator;
-    }
+const Layout = async ({children}: LayoutProps) => {
+    const user = await getUserFromSession()
+    const isCreator = user?.role === "creator"
+
+    // Determine which sidebar data to use based on user role
+    const data: TSideBarData = isCreator ? sideBarDataCreator : sideBarData
+
     return (
         <>
             <NavBar/>
-            <main className={"flex flex-1 flex-col "}>
-                <SidebarProvider>
-                    <AppSidebar
-                        data={data}
-                    >
-                        <div className={"w-full mt-5 flex justify-center"}>
-                            {!isCreator ? <Button className={"w-[70%]"} asChild>
-                                    <Link href={"/new-signin/new-creator"}>
-                                        Upgrade to creator
+            <main className="flex flex-1  overflow-hidden">
+                <div>
+                    <SidebarProvider className={"overflow-x-auto"}>
+                        <AppSidebar data={data}>
+                            <div className="w-full mt-5 flex justify-center">
+                                <Button className="w-[70%]" asChild>
+                                    <Link href={isCreator ? `/${user?.userName}` : "/new-signin/new-creator"}>
+                                        {isCreator ? "My Page" : "Upgrade to creator"}
                                     </Link>
-                                </Button> :
-                                <Button asChild>
-                                    <Link href={"/" + session?.user.userName}>
-                                        My Page
-                                    </Link>
-                                </Button>}
-                        </div>
-                    </AppSidebar>
-                    <SidebarInset>
-
-                        <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
-                    </SidebarInset>
-                </SidebarProvider>
+                                </Button>
+                            </div>
+                        </AppSidebar>
+                    </SidebarProvider>
+                </div>
+                <div className="flex flex-1 flex-col gap-4 p-4 overflow-x-auto">{children}</div>
             </main>
         </>
     )
-        ;
-};
+}
 
-export default Layout;
+export default Layout
+

@@ -8,8 +8,8 @@ export default async function Layout({children, creator}: {
 
     return (
         <>
-            {children}
             {session?.user.role === "creator" && creator}
+            {children}
         </>
     )
 }

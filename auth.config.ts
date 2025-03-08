@@ -2,8 +2,9 @@ import axios, {AxiosError} from "axios";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import {API_ROUTES, BASE_URL} from "./config/routes";
-import {TLoginResponse} from "@/global/types";
+import {TCreator, TLoginResponse} from "@/global/types";
 import {CredentialsSignin, User} from "next-auth";
+import axiosInstance from "@/config/axios";
 
 if (process.env.NODE_ENV === "development") {
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -37,7 +38,7 @@ export const authConfig = {
                             },
                         }
                     );
-                    const user: User = {
+                    let user: User = {
                         ...response.data.user,
                         id: response.data.user.userId,
                         accessToken: response.data.accessToken,
@@ -45,6 +46,16 @@ export const authConfig = {
                         accessTokenExpires: response.data.accessTokenExpires,
                         refreshTokenExpires: response.data.refreshTokenExpires,
                     };
+
+                    if (user.role === "creator") {
+
+                        const creator = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + user.userName)
+
+                        user = {
+                            ...user,
+                            creatorId: creator.data.creatorId,
+                        }
+                    }
 
                     return user;
 

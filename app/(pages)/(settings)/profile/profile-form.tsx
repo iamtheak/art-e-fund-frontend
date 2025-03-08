@@ -8,14 +8,14 @@ import {Button} from "@/components/ui/button";
 import {useToast} from "@/hooks/use-toast";
 import {TProfileFormValues} from "@/app/(pages)/(settings)/profile/types";
 import {profileFormSchema} from "@/app/(pages)/(settings)/profile/validator";
-import {addProfilePicture, removePicture, UpdateProfile} from "@/app/(pages)/(settings)/profile/action";
+import {addProfilePicture, removePicture, updateProfile} from "@/app/(pages)/(settings)/profile/action";
 import {useSession} from "next-auth/react";
 import ImageInput from "@/components/image-input/image-input";
 import {useState} from "react";
 import {TUser} from "@/global/types";
 
 
-export function ProfileForm({defaultValues,originalProfilePicture}: {
+export function ProfileForm({defaultValues, originalProfilePicture}: {
     defaultValues: TProfileFormValues,
     originalProfilePicture: string
 }) {
@@ -29,7 +29,7 @@ export function ProfileForm({defaultValues,originalProfilePicture}: {
     const {toast} = useToast();
     const {update, data: session} = useSession();
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
-    const [currentProfilePicture,setCurrentProfilePicture] = useState<string | null>(originalProfilePicture)
+    const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(originalProfilePicture)
 
     const handleCropComplete = (croppedImageData: string) => {
         setProfilePicture(croppedImageData);
@@ -47,17 +47,22 @@ export function ProfileForm({defaultValues,originalProfilePicture}: {
         })
 
 
-        const removeResponse = await removePicture(currentProfilePicture ?? "");
-        if (!removeResponse) {
-            toast({title: "Error", description: "An error occurred while updating your profile."});
-            return;
+        let profilePictureUrl = null;
+        if (profilePicture !== null) {
+
+            profilePictureUrl = await addProfilePicture(profilePicture ?? "");
+            setCurrentProfilePicture(profilePictureUrl ?? "")
+            const removeResponse = await removePicture(currentProfilePicture ?? "");
+            if (removeResponse) {
+                toast({
+                    title: "Removed old profile picture",
+                    description: "Your old profile picture has been removed."
+                });
+            }
         }
 
-        const profilePictureUrl = await addProfilePicture(profilePicture ?? "");
 
-        setCurrentProfilePicture(profilePictureUrl ?? "")
-
-        const user = await UpdateProfile(data, profilePictureUrl ?? "");
+        const user = await updateProfile(data, profilePictureUrl ?? originalProfilePicture);
 
         if (user === null) {
             toast({title: "Error", description: "An error occurred while updating your profile."});
@@ -76,6 +81,7 @@ export function ProfileForm({defaultValues,originalProfilePicture}: {
 
         toast({title: "Success", description: "Your profile has been updated."});
     }
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
