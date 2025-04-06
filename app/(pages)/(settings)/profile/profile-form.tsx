@@ -8,11 +8,17 @@ import {Button} from "@/components/ui/button";
 import {useToast} from "@/hooks/use-toast";
 import {TProfileFormValues} from "@/app/(pages)/(settings)/profile/types";
 import {profileFormSchema} from "@/app/(pages)/(settings)/profile/validator";
-import {addProfilePicture, removePicture, updateProfile} from "@/app/(pages)/(settings)/profile/action";
+import {
+    addProfilePicture,
+    removePicture,
+    removeProfilePicture,
+    updateProfile
+} from "@/app/(pages)/(settings)/profile/action";
 import {useSession} from "next-auth/react";
 import ImageInput from "@/components/image-input/image-input";
 import {useState} from "react";
 import {TUser} from "@/global/types";
+import Loader from "@/components/loader";
 
 
 export function ProfileForm({defaultValues, originalProfilePicture}: {
@@ -30,45 +36,32 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
     const {update, data: session} = useSession();
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(originalProfilePicture)
+    const [isPending, setIsPending] = useState(false);
 
     const handleCropComplete = (croppedImageData: string) => {
         setProfilePicture(croppedImageData);
     }
 
     async function onSubmit(data: TProfileFormValues) {
-
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-            ),
-        })
-
+        setIsPending(true);
 
         let profilePictureUrl = null;
         if (profilePicture !== null) {
 
             profilePictureUrl = await addProfilePicture(profilePicture ?? "");
             setCurrentProfilePicture(profilePictureUrl ?? "")
-            const removeResponse = await removePicture(currentProfilePicture ?? "");
-            if (removeResponse) {
-                toast({
-                    title: "Removed old profile picture",
-                    description: "Your old profile picture has been removed."
-                });
-            }
         }
 
-
+        console.log(profilePictureUrl);
         const user = await updateProfile(data, profilePictureUrl ?? originalProfilePicture);
 
         if (user === null) {
             toast({title: "Error", description: "An error occurred while updating your profile."});
+            setIsPending(false);
             return;
         }
         if (session === null) {
+            setIsPending(false);
             return
         }
         await update({
@@ -80,12 +73,14 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
         })
 
         toast({title: "Success", description: "Your profile has been updated."});
+        setIsPending(false);
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 relative">
 
+                {isPending && <Loader/>}
                 <ImageInput image={currentProfilePicture ?? undefined} onCropComplete={handleCropComplete}/>
                 <FormField
                     control={form.control}

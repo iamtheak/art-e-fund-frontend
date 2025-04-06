@@ -44,13 +44,15 @@ export default function InfoTab() {
         mutationFn: async (data: TNewCreator) => {
             return await createNewCreator(data, contentTypeId)
         },
-        onSuccess: async () => {
+        onSuccess: async (creator) => {
             toast({title: "You are a creator !", description: "Creator created successfully"})
 
             await update({
                 user: {
                     ...session,
-                    role: "creator"
+                    role: "creator",
+                    creatorId: creator.creatorId,
+                    userName: creator.userName,
                 }
             })
             router.push("/home")

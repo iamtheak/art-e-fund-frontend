@@ -1,7 +1,7 @@
 "use server"
 
 import axiosInstance from "@/config/axios";
-import {TMembership} from "@/global/types";
+import {TEnrolledMembership, TMembership} from "@/global/types";
 import {API_ROUTES} from "@/config/routes";
 import {AxiosError} from "axios";
 
@@ -56,4 +56,15 @@ export const deleteMembership = async (membershipId: number) => {
         }
     }
     throw new Error("An error occurred while deleting membership")
+}
+
+export const getCreatorMembers = async (creatorId: number | string) => {
+    try {
+        const response = await axiosInstance.get<TEnrolledMembership[]>(`${API_ROUTES.MEMBERSHIP.ENROLLED.CREATOR}/${creatorId}`)
+        return response.data
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            throw new Error(error.response?.data)
+        }
+    }
 }

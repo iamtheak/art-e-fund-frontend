@@ -4,6 +4,8 @@ import axiosInstance from "@/config/axios";
 import {API_ROUTES} from "@/config/routes";
 import {TCreator} from "@/global/types";
 import {v2 as cloudinary} from "cloudinary";
+import {getUserFromSession} from "@/global/helper";
+import {AxiosError} from "axios";
 
 
 cloudinary.config({
@@ -26,7 +28,7 @@ export async function uploadCreatorBanner(userId: string | number, file: File | 
         const fileUri = `data:${file.type};base64,${fileStr}`;
 
         const response = await cloudinary.uploader.upload(fileUri, {
-            folder: `${userId}/banner`,
+            folder: `${userId}`,
             filename_override: "banner",
             resource_type: "image",
             overwrite: true,
@@ -34,6 +36,7 @@ export async function uploadCreatorBanner(userId: string | number, file: File | 
                 {width: 1200, height: 400, crop: "limit"},
                 {quality: "auto"},
             ],
+            public_id: `${userId}/banner`,
         });
 
         return response.secure_url;
@@ -51,5 +54,54 @@ export async function UpdateCreatorDetails(creator: TCreator) {
     } catch {
 
         throw new Error("Error updating creator details");
+    }
+}
+
+export async function EnrollMembership(membershipId: string | number) {
+
+    const user = await getUserFromSession();
+
+    if (user === null) {
+        throw new Error("User should be logged in to enroll");
+    }
+    try {
+        await axiosInstance.post(API_ROUTES.MEMBERSHIP.ENROLL, {userId: user.userId, membershipId});
+    } catch (e) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.message);
+        }
+    }
+}
+
+export async function GetEMByUserIdMembershipId(userId: string | number, membershipId: string | number) {
+    try {
+        const response = await axiosInstance.get(`${API_ROUTES.MEMBERSHIP.ENROLLED.USER}/${userId}/membership/${membershipId}`);
+        return response.data;
+    } catch (e) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.message);
+        }
+    }
+}
+
+export async function GetCreatorByUserName(userName: string) {
+    try {
+        const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + userName);
+        return response.data;
+    } catch (e) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.message);
+        }
+    }
+}
+
+export async function GetCreatorMembershipByCreatorId(creatorId: string | number) {
+    try {
+        const response = await axiosInstance.get(`${API_ROUTES.MEMBERSHIP.CREATOR.BASE}/${creatorId}`);
+        return response.data;
+    } catch (e) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.message);
+        }
     }
 }

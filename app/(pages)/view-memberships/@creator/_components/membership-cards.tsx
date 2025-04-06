@@ -62,7 +62,7 @@ export function MembershipCards({userName}: { userName: string }) {
                 <PlusCircle className="h-4 w-4" />
                 Create membership
             </Button>
-            <BaseDialog title={"Update your membership"} isOpen={isOpen} setIsOpen={setIsOpen}>
+            <BaseDialog title={action === "create" ? "Create new membership" : "Update your membership"} isOpen={isOpen} setIsOpen={setIsOpen}>
                 <MembershipDialog setOpen={setIsOpen} refetch={refetch} action={actions[action]}
                                   defaultValues={currentMembership}/>
             </BaseDialog>

@@ -8,6 +8,7 @@ import {useMutation} from "@tanstack/react-query";
 import {UpdateCreatorDetails, uploadCreatorBanner} from "@/app/[username]/action";
 import {toast} from "@/hooks/use-toast";
 import BaseDialog from "@/components/base-dialog/base-dialog";
+import Loader from "@/components/loader";
 
 export default function BannerDialogContent({creator}: { creator: TCreator }) {
     const uploadImageRef = useRef<UploadImageRef>(null);
@@ -81,11 +82,12 @@ export default function BannerDialogContent({creator}: { creator: TCreator }) {
                         <p className="text-red-500 underline cursor-pointer" onClick={onRemoveImage}>
                             Remove cover
                         </p>
-                        <Button onClick={onSave}>Save</Button>
+                        <Button disabled={uploadBanner.isPending} onClick={onSave}>Save</Button>
                     </div>}>
 
                 <div
-                    className="w-full h-72 border-dashed border-2 border-gray-300 flex text-center justify-center items-center">
+                    className="w-full h-72 border-dashed border-2 border-gray-300 flex text-center justify-center items-center relative">
+                    {uploadBanner.isPending && <Loader text={"Uploading Banner"} />}
                     <UploadImage ref={uploadImageRef} props={{onImageUpload, maxFiles: 1}}/>
                 </div>
             </BaseDialog>

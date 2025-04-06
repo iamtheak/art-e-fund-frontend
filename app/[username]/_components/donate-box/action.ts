@@ -4,6 +4,7 @@
 import axiosInstance from "@/config/axios";
 import {getUserFromSession} from "@/global/helper";
 import {donationSchema, TDonationSchema} from "@/app/[username]/_components/donate-box/validator";
+import {API_ROUTES} from "@/config/routes";
 
 export async function submitDonation(data: TDonationSchema) {
     try {
@@ -19,7 +20,7 @@ export async function submitDonation(data: TDonationSchema) {
             userId: userId,
         };
 
-        await axiosInstance.post("/donation", payload);
+        await axiosInstance.post(API_ROUTES.DONATION.BASE, payload);
 
         return {success: true, message: "Donation sent successfully!"};
     } catch (error) {

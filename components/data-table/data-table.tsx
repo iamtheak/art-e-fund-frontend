@@ -1,11 +1,19 @@
 "use client"
-import {ColumnDef, ColumnFiltersState, FilterFn, getCoreRowModel, useReactTable} from "@tanstack/react-table";
+import {
+    ColumnDef,
+    ColumnFiltersState,
+    FilterFn,
+    getCoreRowModel,
+    getPaginationRowModel,
+    useReactTable
+} from "@tanstack/react-table";
 import {Dispatch, SetStateAction} from "react";
 import {Table} from "@/components/ui/table";
 import DataTableHead from "@/components/data-table/data-table-head";
 import DataTableBody from "@/components/data-table/data-table-body";
 import {cn} from "@/lib/utils";
 import {Skeleton} from "@/components/ui/skeleton";
+import DataTablePagination from "@/components/data-table/pagination";
 
 export type TPagination = {
     pageIndex: number
@@ -36,7 +44,6 @@ export default function DataTable<T>({props, children}: { props: TDataTableProps
     const table = useReactTable({
         data: props.data,
         columns: props.columnDefinitions,
-        manualPagination: true,
         state: {
             pagination: props.pagination,
             columnFilters: props.filters?.columnFilters,
@@ -47,6 +54,7 @@ export default function DataTable<T>({props, children}: { props: TDataTableProps
         onColumnFiltersChange: props.filters?.setColumnFilters,
         onGlobalFilterChange: props.filters?.setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: props.getFilteredRowModel,
         filterFns: props.filterFns
     });
@@ -55,9 +63,9 @@ export default function DataTable<T>({props, children}: { props: TDataTableProps
         return (
             <div className="w-full h-[500px] overflow-auto relative rounded-md border p-4">
                 <div className="space-y-3">
-                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full"/>
                     {Array(5).fill(0).map((_, i) => (
-                        <Skeleton key={i} className="h-16 w-full" />
+                        <Skeleton key={i} className="h-16 w-full"/>
                     ))}
                 </div>
             </div>
@@ -65,12 +73,15 @@ export default function DataTable<T>({props, children}: { props: TDataTableProps
     }
 
     return (
-        <div className={"w-full h-full overflow-auto relative rounded-md border"}>
-            <Table className={cn("w-full", props.className)}>
-                <DataTableHead table={table} alignHeadingText="text-center"/>
-                <DataTableBody table={table} data={props.data} alignCellText={"text-center"}/>
-                {children}
-            </Table>
+        <div className={"relative"}>
+            <div className={"w-full h-[500px] overflow-auto  rounded-md border relative"}>
+                <Table className={cn("w-full sticky", props.className)}>
+                    <DataTableHead table={table} alignHeadingText="text-center"/>
+                    <DataTableBody table={table} data={props.data} alignCellText={"text-center"}/>
+                    {children}
+                </Table>
+            </div>
+            <DataTablePagination table={table}/>
         </div>
     )
 }

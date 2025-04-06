@@ -28,7 +28,6 @@ export default function RegisterPage() {
         formState: {errors},
         handleSubmit,
         setValue,
-        getValues,
     } = useForm<TRegisterFormProps>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -154,9 +153,6 @@ export default function RegisterPage() {
                         </div>
                         <Button
                             className="w-full"
-                            onClick={() => {
-                                console.log(getValues());
-                            }}
                             type="submit"
                         >
                             Register

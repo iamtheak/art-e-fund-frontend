@@ -14,3 +14,7 @@ export function convertFileToBase64(file: File): Promise<string> {
         reader.onerror = (error) => reject(error);
     });
 }
+
+export function isValidUsername(username: string) {
+    return /^[a-zA-Z0-9_]+$/.test(username);
+}

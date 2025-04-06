@@ -7,11 +7,26 @@ import {API_ROUTES} from "@/config/routes";
 import {TUser} from "@/global/types";
 import {v2 as cloudinary} from "cloudinary"
 import {AxiosError} from "axios";
+import {getUserFromSession} from "@/global/helper";
+
+
+cloudinary.config({
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 
 export async function addProfilePicture(image: string) {
+    const user = await getUserFromSession()
+    if (user === null) {
+        throw new Error("Need to be a logged in user");
+    }
     try {
         const res = await cloudinary.uploader.upload(image, {
+            folder: `${user.userId}`,
+            public_id: `profile-${user.userId}`,
+            overwrite: true,
             filename_override: "profile",
         });
         return res.secure_url;
@@ -21,12 +36,22 @@ export async function addProfilePicture(image: string) {
     }
 }
 
-export async function removePicture(imageUrl: string) {
+export async function removeProfilePicture() {
+    const user = await getUserFromSession()
+    if (user === null) {
+        throw new Error("Need to be a logged in user");
+    }
     try {
+        const res = await cloudinary.uploader.destroy(`${user.userId}/profile/profile-${user.userId}`);
+        return res.result === "ok";
+    } catch (ex) {
+        console.log(ex)
+        return false;
+    }
+}
 
-        const image = imageUrl.split("/")
-
-        const publicId = image[image.length - 1].replace(".jpg", "");
+export async function removePicture(publicId: string) {
+    try {
         const res = await cloudinary.uploader.destroy(publicId);
         return res.result === "ok";
     } catch (ex) {
@@ -57,6 +82,7 @@ export async function updateProfile(data: TProfileFormValues, userProfileUrl: st
 
     } catch (ex) {
         if (ex instanceof AxiosError) {
+            console.log(ex.config)
             console.log(ex.response?.data)
         }
 

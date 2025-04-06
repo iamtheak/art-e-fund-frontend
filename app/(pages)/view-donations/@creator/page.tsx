@@ -19,7 +19,7 @@ export default async function Page() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold mb-4">View your donations from your fans!</h1>
+      <h1 className="text-3xl font-bold mb-4">View your donations from your fans!</h1>
 
       <HydrationBoundary state={dehydrate(queryClient)}>
         <DonationTable creatorId={creatorId} />

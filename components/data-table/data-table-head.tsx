@@ -11,14 +11,14 @@ export interface IDataTable<T> {
 }
 export default function DataTableHead<T, >({table, alignHeadingText, className}: IDataTable<T>) {
     return (
-        <TableHeader className={"sticky z-40 top-0"}>
+        <thead className={"sticky top-0 z-10"}>
             {table.getHeaderGroups().map((headerGroup) => {
                 return (
-                    <TableRow key={headerGroup.id}>
+                    <tr  key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {
                             const {columnDef} = header.column
                             return (
-                                <TableHead
+                                <th
                                     scope="col"
                                     key={header.id}
                                     colSpan={header.colSpan}
@@ -34,12 +34,12 @@ export default function DataTableHead<T, >({table, alignHeadingText, className}:
                                             columnDef.header,
                                             header.getContext()
                                         )}
-                                </TableHead>
+                                </th>
                             )
                         })}
-                    </TableRow>
+                    </tr>
                 )
             })}
-        </TableHeader>
+        </thead>
     )
 }

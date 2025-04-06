@@ -12,7 +12,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     async (config) => {
 
-
         const session = await auth();
         const token = session?.user?.accessToken ?? "";
 

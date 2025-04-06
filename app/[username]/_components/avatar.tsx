@@ -16,8 +16,12 @@ export default function CreatorAvatar({user}: { user: TUser }) {
             <Avatar onClick={() => {
                 setIsOpen(true)
             }} className={"w-40 h-40 cursor-pointer"}>
-                <Image className={"h-full w-full"} src={user?.profilePicture} fill
-                       alt={"Profile picture of " + user?.userName}/>
+                {
+
+                    user?.profilePicture &&
+                    <Image className={"h-full w-full"} src={user?.profilePicture} fill
+                           alt={"Profile picture of " + user?.userName}/>
+                }
                 <AvatarFallback>{user.userName}</AvatarFallback>
             </Avatar>
 

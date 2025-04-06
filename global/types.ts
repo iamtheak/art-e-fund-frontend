@@ -55,7 +55,21 @@ export type TMembership = {
     membershipId: number
     membershipTier: number
     membershipName: string
-    creatorId: number,
+    creatorId: number
     membershipAmount: number
     membershipBenefits: string
+}
+
+export type TEnrolledMembership = {
+    enrolledMembershipId: number
+    userName: string
+    membershipName: string
+    userId: number
+    membershipId: number
+    enrolledDate: Date
+    expiryDate: Date
+    isActive: boolean
+    paidAmount: number
+    creatorId: number
+    membershipTier: number
 }

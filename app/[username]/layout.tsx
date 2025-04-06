@@ -2,13 +2,13 @@ import NavBar from "@/components/nav-bar/nav-bar";
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import CreatorAvatar from "@/app/[username]/_components/avatar";
-import {getUserFromSession} from "@/global/helper";
+import {getUserFromSession, isValidUsername} from "@/global/helper";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import CreatorBanner from "@/app/[username]/_components/creator-banner/creator-banner";
 import axiosInstance from "@/config/axios";
 import {TCreator} from "@/global/types";
 import {API_ROUTES} from "@/config/routes";
-import {redirect} from "next/navigation";
+import {notFound} from "next/navigation";
 import BannerDialogContent from "@/app/[username]/_components/creator-banner/dialog-content";
 import Image from "next/image";
 import DonationDialog from "@/app/[username]/_components/donation-dialog/donation-dialog";
@@ -19,8 +19,10 @@ export default async function Layout({children, params}: {
 }) {
 
     const auth = await getUserFromSession();
-
     const paramData = await params;
+    if (paramData.username === "error" || !isValidUsername(paramData.username)) {
+        notFound()
+    }
     const isSameUser = auth?.userName === paramData.username;
     let creator: TCreator | null = null;
 
@@ -28,7 +30,7 @@ export default async function Layout({children, params}: {
         const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + paramData.username)
         creator = response.data;
     } catch {
-        redirect("/error")
+        notFound()
     }
 
     return (<>
@@ -56,8 +58,12 @@ export default async function Layout({children, params}: {
                                         <CreatorAvatar user={auth}/>
                                         :
                                         (<Avatar className={"w-40 h-40"}>
-                                            <Image src={creator?.profilePicture} fill
-                                                   alt={"Profile picture of " + creator?.userName}/>
+
+                                            {
+                                                creator?.profilePicture &&
+                                                <Image src={creator?.profilePicture} fill
+                                                       alt={"Profile picture of " + creator?.userName}/>
+                                            }
 
                                             <AvatarFallback>{creator?.userName}</AvatarFallback>
                                         </Avatar>)
@@ -73,7 +79,7 @@ export default async function Layout({children, params}: {
                                 {
                                     !isSameUser &&
                                     <div className={"flex gap-3"}>
-                                        <DonationDialog userName={creator?.userName} creatorId={creator?.creatorId} />
+                                        <DonationDialog userName={creator?.userName} creatorId={creator?.creatorId}/>
                                         <Button>
                                             Follow
                                         </Button>

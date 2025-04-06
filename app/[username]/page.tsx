@@ -2,10 +2,9 @@ import {Progress} from "@/components/ui/progress";
 import Link from "next/link";
 import {Icon} from "@iconify/react";
 import Donate from "@/app/[username]/_components/donate-box/donate";
-import {getUserFromSession} from "@/global/helper";
 import {TCreator} from "@/global/types";
-import axiosInstance from "@/config/axios";
-import {API_ROUTES} from "@/config/routes";
+import {GetCreatorByUserName} from "@/app/[username]/action";
+import {notFound} from "next/navigation";
 
 export default async function Page({
                                        params,
@@ -14,14 +13,14 @@ export default async function Page({
 }) {
     const slug = (await params).username;
 
-    const auth = await getUserFromSession();
-
-    const paramData = await params;
-    const isSameUser = auth?.userName === paramData.username;
     let creator: TCreator | null = null;
 
-    const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + paramData.username)
-    creator = response.data;
+    const response = await GetCreatorByUserName(slug);
+
+    if (response === undefined) {
+        notFound()
+    }
+    creator = response;
 
 
     return (

@@ -16,11 +16,22 @@ export const API_ROUTES = {
     },
     MEMBERSHIP: {
         BASE: "/membership",
-        USER: "/membership/user",
         CREATOR: {
             BASE: "/membership/creator",
             userName: "/membership/creator/username",
         },
+        ENROLL: "/membership/enroll",
+        CHANGE: "/membership/change",
+        END: "/membership/end",
+        ENROLLED: {
+            USER: "/membership/enrolled/user",
+            CREATOR: "/membership/enrolled/creator",
+        },
+    },
+    DONATION: {
+        BASE: "/donation",
+        USER: "/donation/user",
+        CREATOR: "/donation/creator",
     },
     USER: "/user",
 };

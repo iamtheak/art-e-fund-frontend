@@ -18,7 +18,7 @@ export type TDonation = {
     donationMessage: string | null,
     creatorId: number,
     userId: number | null,
-    donor: string
+    userName?: string
 }
 
 // Custom filter function for date ranges
@@ -76,16 +76,16 @@ export function DonationTable({creatorId}: { creatorId: number }) {
     // Use prefetched data from the server
     const {data: donations = [], isLoading} = useQuery({
         queryKey: ['donations', creatorId],
-        queryFn: () => getDonationsForCreator(creatorId),
-        placeholderData: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
-            donationId: id,
-            donationDate: new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28)).toISOString(),
-            donationAmount: Math.floor(Math.random() * 10000) + 100,
-            donationMessage: id % 3 === 0 ? null : `Thank you for your amazing content! #${id}`,
-            creatorId: 1,
-            userId: id % 2 === 0 ? id + 100 : null,
-            donor: id % 2 === 0 ? `User #${id + 100}` : "Anonymous"
-        }))
+        queryFn: () => getDonationsForCreator(creatorId)
+        // placeholderData: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
+        //     donationId: id,
+        //     donationDate: new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28)).toISOString(),
+        //     donationAmount: Math.floor(Math.random() * 10000) + 100,
+        //     donationMessage: id % 3 === 0 ? null : `Thank you for your amazing content! #${id}`,
+        //     creatorId: 1,
+        //     userId: id % 2 === 0 ? id + 100 : null,
+        //     userName: "asdsada"
+        // }))
     });
 
     // Apply filters when they change
@@ -170,7 +170,8 @@ export function DonationTable({creatorId}: { creatorId: number }) {
         },
         {
             header: "Supporter",
-            accessorKey: "donor"
+            accessorKey: "userName",
+            cell: ({row}) => row.original.userName || "Anonymous"
         },
         {
             header: "View",
@@ -189,7 +190,6 @@ export function DonationTable({creatorId}: { creatorId: number }) {
         data: donations as TDonation[],
         pagination: pagination,
         setPagination: setPagination,
-        className: "max-h-[100px]",
         filters: {
             columnFilters,
             setColumnFilters,
@@ -264,7 +264,7 @@ export function DonationTable({creatorId}: { creatorId: number }) {
                                 className="w-full"
                             />
                         </div>
-
+p
                         <div className="w-full">
                             <label className="text-sm font-medium mb-1 block">Date Range</label>
                             <DateRangePicker
