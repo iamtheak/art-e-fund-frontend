@@ -32,9 +32,8 @@ export function AppSidebar({data, children, ...props}: {
 
 
     return (
-        <Sidebar {...props}  collapsible={"none"} variant={"sidebar"}>
-
-            <SidebarContent>
+        <Sidebar {...props} collapsible={"offcanvas"} variant={"inset"} >
+            <SidebarContent className="bg-white border-r">
                 {/* We create a SidebarGroup for each parent. */}
                 {data.navMain.map((item) => (
                     <SidebarGroup key={item.title}>

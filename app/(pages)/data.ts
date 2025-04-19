@@ -79,7 +79,7 @@ export const sideBarDataCreator : TSideBarData = {
                 },
                 {
                     title: "Posts",
-                    url: "/posts"
+                    url: "/manage-posts"
                 }
             ]
         },

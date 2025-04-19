@@ -6,8 +6,8 @@ export default async function CreatorBanner({image}: { image: string | null }) {
         <div className={"w-full h-80"}>
             {
                 image &&
-                <Image src={`${image}?q_auto:best&f_auto&w=1920`} alt={""} width={100} height={100}
-                       className={"w-full h-full object-cover"} priority quality={100}/>
+                <img src={`${image}?q_auto:best&f_auto&w=1920`} alt={""}
+                     className={"w-full h-full object-cover"}/>
             }
         </div>
     )

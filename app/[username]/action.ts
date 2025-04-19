@@ -6,6 +6,8 @@ import {TCreator} from "@/global/types";
 import {v2 as cloudinary} from "cloudinary";
 import {getUserFromSession} from "@/global/helper";
 import {AxiosError} from "axios";
+import {TDonationGoal} from "@/app/(pages)/view-donations/_components/validator";
+import {Post} from "@/app/(pages)/manage-posts/action";
 
 
 cloudinary.config({
@@ -89,9 +91,18 @@ export async function GetCreatorByUserName(userName: string) {
         const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + userName);
         return response.data;
     } catch (e) {
-        if (e instanceof AxiosError) {
-            throw new Error(e.response?.data.message);
-        }
+        return null
+    }
+}
+
+export async function GetPostsByUsername(userName: string) {
+    try {
+        const response = await axiosInstance.get<Post[]>(`${API_ROUTES.POST.USER}/${userName}`);
+        return response.data;
+    } catch {
+
+
+        return []
     }
 }
 
@@ -103,5 +114,18 @@ export async function GetCreatorMembershipByCreatorId(creatorId: string | number
         if (e instanceof AxiosError) {
             throw new Error(e.response?.data.message);
         }
+    }
+}
+
+export async function GetCreatorActiveDonationGoal(creatorId: number) {
+
+    try {
+        const response = await axiosInstance.get<TDonationGoal>(`${API_ROUTES.DONATION.GOAL.ACTIVE}/${creatorId}`);
+        return response.data;
+    } catch (e) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.message);
+        }
+        throw new Error("Error fetching active donation goal");
     }
 }

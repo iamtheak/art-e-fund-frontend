@@ -5,127 +5,165 @@ import CreatorAvatar from "@/app/[username]/_components/avatar";
 import {getUserFromSession, isValidUsername} from "@/global/helper";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import CreatorBanner from "@/app/[username]/_components/creator-banner/creator-banner";
-import axiosInstance from "@/config/axios";
-import {TCreator} from "@/global/types";
-import {API_ROUTES} from "@/config/routes";
-import {notFound} from "next/navigation";
 import BannerDialogContent from "@/app/[username]/_components/creator-banner/dialog-content";
+import {GetCreatorByUserName} from "./action";
+import {notFound} from "next/navigation";
 import Image from "next/image";
 import DonationDialog from "@/app/[username]/_components/donation-dialog/donation-dialog";
+import {Metadata} from "next";
 
-export default async function Layout({children, params}: {
-    children: React.ReactNode,
-    params: { username: string },
-}) {
+interface CreatorLayoutProps {
+    children: React.ReactNode;
+    params: { username: string, segment?: string };
+}
+
+export async function generateMetadata({params}: CreatorLayoutProps): Promise<Metadata> {
+
+    const creator = await GetCreatorByUserName(params.username);
+
+    if (!creator) {
+        return {title: "Creator Not Found"};
+    }
+
+    return {
+        title: `${creator.userName} | Creator Profile`,
+        description: creator.creatorBio || `Support ${creator.userName} on our platform`,
+    };
+}
+
+export default async function CreatorLayout({children, params}: CreatorLayoutProps) {
+
+    const parameters = await params;
+    const username = parameters.username;
+
+    if (username === "error" || !isValidUsername(username)) {
+        notFound();
+    }
 
     const auth = await getUserFromSession();
-    const paramData = await params;
-    if (paramData.username === "error" || !isValidUsername(paramData.username)) {
-        notFound()
-    }
-    const isSameUser = auth?.userName === paramData.username;
-    let creator: TCreator | null = null;
+    const creator = await GetCreatorByUserName(username);
 
-    try {
-        const response = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + paramData.username)
-        creator = response.data;
-    } catch {
-        notFound()
+    if (!creator) {
+        notFound();
     }
 
-    return (<>
+    const isSameUser = auth?.userName === username;
+
+    console.log(parameters.username, parameters.segment);
+    return (
+        <>
             <NavBar/>
-            <main className="max-w-[1080px] relative m-auto">
+            <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+                {/* Banner Section */}
+                <div
+                    className="relative w-full h-48 sm:h-64 md:h-80 bg-gradient-to-r from-mint/80 to-mint overflow-hidden">
+                    {creator.creatorBanner ? (
+                        <CreatorBanner image={creator.creatorBanner}/>
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-yinmn-blue to-blue-700"/>
+                    )}
 
-                <div className={" relative flex justify-center items-center flex-col"}>
+                    {isSameUser && <BannerDialogContent creator={creator}/>}
+                </div>
 
-                    {creator?.creatorBanner ? <CreatorBanner image={creator?.creatorBanner}/> :
-                        <div className={"w-full bg-mint h-80"}>
+                <div className="max-w-[1080px] mx-auto px-4 relative">
+                    {/* Profile Section */}
+                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-10 mb-6">
+                        <div
+                            className="w-44 h-44 flex items-center justify-center border-white border-4 rounded-full overflow-hidden shadow-lg">
+                            {isSameUser ? (
+                                <CreatorAvatar user={auth}/>
+                            ) : (
+                                <Avatar className="w-full h-full">
+                                    {creator.profilePicture ? (
+                                        <Image
+                                            src={creator.profilePicture}
+                                            fill
+                                            alt={`Profile picture of ${creator.userName}`}
+                                            className="object-cover"
+                                        />
+                                    ) : (
+                                        <AvatarFallback
+                                            className="w-full h-full flex items-center justify-center bg-yinmn-blue text-white text-3xl">
+                                            {creator.userName.charAt(0).toUpperCase()}
+                                        </AvatarFallback>
+                                    )}
+                                </Avatar>
+                            )}
                         </div>
-                    }
+
+                        <div
+                            className="flex flex-col md:flex-row items-center md:items-end justify-between w-full pb-3 gap-4">
+                            <div className="text-center md:text-left">
+                                <h1 className="text-2xl md:text-3xl font-bold">{creator.userName}</h1>
+                                <p className="text-gray-600 mt-1 max-w-md line-clamp-2">
+                                    {creator.creatorBio || "Creator on our platform"}
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col items-center md:items-end gap-2">
+                                {!isSameUser && (
+                                    <div className="flex gap-3">
+                                        <DonationDialog userName={creator.userName} creatorId={creator.creatorId}/>
+                                        <Button
+                                            className="bg-yinmn-blue hover:bg-blue-700 transition-colors">Follow</Button>
+                                    </div>
+                                )}
+                                <span className="text-sm text-gray-600">{!isSameUser && "Join"} 3000 followers</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Navigation Tabs */}
 
                     {
-                        isSameUser && <BannerDialogContent creator={creator}/>
-                    }
-
-                    <div className={"w-full z-20 px-5 py-2 rounded-md bg-emerald"}>
-
-                        <div className={"w-full flex justify-between"}>
-                            <div className={"flex justify-center gap-6"}>
-
-                                {
-                                    isSameUser ?
-                                        <CreatorAvatar user={auth}/>
-                                        :
-                                        (<Avatar className={"w-40 h-40"}>
-
-                                            {
-                                                creator?.profilePicture &&
-                                                <Image src={creator?.profilePicture} fill
-                                                       alt={"Profile picture of " + creator?.userName}/>
-                                            }
-
-                                            <AvatarFallback>{creator?.userName}</AvatarFallback>
-                                        </Avatar>)
-                                }
-
-                                <div className={"w-[40%] relative"}>
-                                    <h1 className={"text-3xl"}>{creator?.userName}</h1>
-                                    <p className={"text-gray-500 w-full"}>This is the page of {creator?.userName}</p>
-                                </div>
-                            </div>
-
-                            <div className={"flex gap-2 justify-items-start items-end flex-col"}>
-                                {
-                                    !isSameUser &&
-                                    <div className={"flex gap-3"}>
-                                        <DonationDialog userName={creator?.userName} creatorId={creator?.creatorId}/>
-                                        <Button>
-                                            Follow
-                                        </Button>
-                                    </div>
-                                }
-                                <span>
-                                    Join 3000 followers
-                                </span>
-
-                            </div>
-                        </div>
-
-                        <div className={"flex justify-center gap-5 items-center bg-emerald mt-5 "}>
-
-                            {
-                                creator?.hasPosts || creator?.hasMembership &&
+                        !isSameUser &&
+                        <div className="border-b border-gray-200 mb-6">
+                            <nav className="flex space-x-8 overflow-x-auto">
                                 <Link
-                                    href={`/${creator?.userName}`}
-                                    className={`w-24 text-center pb-1 border-b-4 border-white}`}
+                                    href={`/${creator.userName}`}
+                                    className={`py-3 px-1 border-b-2 text-sm font-medium transition-colors
+                  ${parameters.username && !parameters.segment?.includes('/mem') ?
+                                        'border-yinmn-blue text-yinmn-blue' :
+                                        'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                                 >
                                     About
                                 </Link>
-                            }
-                            {
-                                !isSameUser && creator?.hasPosts &&
-                                <Link
-                                    href={`/${creator?.userName}/posts`}
-                                    className={`w-24 text-center pb-1 border-b-2 border-white }`}
-                                >
-                                    Posts
-                                </Link>
-                            }
-                            {
-                                !isSameUser && creator?.hasMembership &&
-                                <Link
-                                    href={`/${creator?.userName}/memberships`}
-                                    className={`w-24 text-center pb-1 border-b-2 border-white}`}
-                                >
-                                    Memberships
-                                </Link>
-                            }
+
+                                {(creator.hasPosts || isSameUser) && (
+                                    <Link
+                                        href={`/${creator.userName}/posts`}
+                                        className={`py-3 px-1 border-b-2 text-sm font-medium transition-colors
+                    ${parameters.username && parameters.segment?.includes('/manage-posts') ?
+                                            'border-yinmn-blue text-yinmn-blue' :
+                                            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                    >
+                                        Posts
+                                    </Link>
+                                )}
+
+                                {(creator.hasMembership || isSameUser) && (
+                                    <Link
+                                        href={`/${creator.userName}/memberships`}
+                                        className={`py-3 px-1 border-b-2 text-sm font-medium transition-colors
+                                            ${parameters.username && parameters.segment?.includes('/memberships') ?
+                                            'border-yinmn-blue text-yinmn-blue' :
+                                            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                    >
+                                        Memberships
+                                    </Link>
+                                )}
+                            </nav>
                         </div>
+                    }
+
+
+                    {/* Page Content */}
+                    <div className="pb-12">
+                        {children}
                     </div>
                 </div>
-                {children}
             </main>
         </>
-    )
+    );
 }

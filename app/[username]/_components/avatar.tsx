@@ -11,7 +11,7 @@ export default function CreatorAvatar({user}: { user: TUser }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className={"w-full"}>
+        <>
 
             <Avatar onClick={() => {
                 setIsOpen(true)
@@ -30,6 +30,6 @@ export default function CreatorAvatar({user}: { user: TUser }) {
                     console.log("asdf", croppedImageData)
                 }}/>
             </BaseDialog>
-        </div>
+        </>
     )
 }

@@ -74,7 +74,7 @@ export default function DataTable<T>({props, children}: { props: TDataTableProps
 
     return (
         <div className={"relative"}>
-            <div className={"w-full h-[500px] overflow-auto  rounded-md border relative"}>
+            <div className={"w-full h-[400px] overflow-auto  rounded-md border relative"}>
                 <Table className={cn("w-full sticky", props.className)}>
                     <DataTableHead table={table} alignHeadingText="text-center"/>
                     <DataTableBody table={table} data={props.data} alignCellText={"text-center"}/>

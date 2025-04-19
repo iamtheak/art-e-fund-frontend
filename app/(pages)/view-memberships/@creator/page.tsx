@@ -48,7 +48,7 @@ export default async function ViewCreatorMembership() {
                             <CardDescription>View and manage your subscribers across all membership
                                 tiers</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent >
                             <HydrationBoundary state={dehydrate(queryClient)}>
                                 <MembersList creatorId={user?.creatorId ?? 0}/>
                             </HydrationBoundary>

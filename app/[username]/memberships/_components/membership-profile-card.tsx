@@ -40,6 +40,10 @@ export default function MembershipProfileCard({membership}: TMembershipProfileCa
                     Rs: {membership.membershipAmount}/month
                 </p>
                 <Button disabled={mutation.isPending || !!enrolledMembership} onClick={async () => {
+                    if (session.status !== "authenticated") {
+                        toast({title: "Error", description: "You need to be logged in to enroll in a membership"})
+                        return
+                    }
                     await mutation.mutateAsync()
                 }} className={"w-full rounded-full"}>
                     {!!enrolledMembership ? "Enrolled" : "Enroll"}

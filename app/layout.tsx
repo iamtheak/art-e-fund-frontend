@@ -4,6 +4,7 @@ import "./globals.css";
 import {Toaster} from "@/components/ui/toaster";
 import {Provider} from "../providers/provider";
 import QueryProvider from "@/providers/query-provider";
+import {SidebarProvider} from "@/components/ui/sidebar";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -33,11 +34,14 @@ export default function RootLayout({
         >
         <Provider>
             <QueryProvider>
-                {children}
+                <SidebarProvider className={"flex"}>
+                    {children}
+                </SidebarProvider>
             </QueryProvider>
-            <Toaster/>
         </Provider>
+        <Toaster/>
         </body>
         </html>
-    );
+    )
+        ;
 }

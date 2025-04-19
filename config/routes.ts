@@ -8,6 +8,20 @@ export const API_ROUTES = {
         REFRESH: "/auth/refresh",
         GOOGLE_VERIFY: "/auth/google-login"
     },
+    POST: {
+        BASE: "/post",
+        SLUG: "/post/slug",
+        CREATOR: "/post/creator",
+        USER: "/post/user",
+        LIKE: {
+            BASE: "/post/like",
+            POST: "/post/likes/post",
+        },
+        COMMENT: {
+            BASE: "/post/comment",
+            POST: "/post/comments",
+        }
+    },
     CREATOR: {
         BASE: "/creators",
         USER_ID: "/creators/user/",
@@ -32,6 +46,12 @@ export const API_ROUTES = {
         BASE: "/donation",
         USER: "/donation/user",
         CREATOR: "/donation/creator",
+        GOAL: {
+            BASE: "/donation/goal",
+            CREATOR: "/donation/goal/creator",
+            ACTIVE: "/donation/goal/active",
+            INACTIVE: "/donation/goal/inactive",
+        }
     },
     USER: "/user",
 };
@@ -48,6 +68,6 @@ export const AUTHENTICATED_ROUTES = [
 ]
 
 export const CREATOR_ROUTES = [
-    "/posts",
+    "/manage-posts",
     "/analytics",
 ]

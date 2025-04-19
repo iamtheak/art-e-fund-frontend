@@ -13,8 +13,8 @@ const NavBar = async () => {
 
     return (
         <header className={"w-full bg-white shadow-md sticky top-0 z-50"}>
-            <nav className=" max-w-[1290px] m-auto flex justify-between py-3 px-2 align-middle">
-                <div>
+            <nav className=" max-w-[1290px] m-auto flex justify-between py-3 px-5 align-middle rounded-md">
+                <div className={"w-[10%] flex justify-center items-center gap-5"}>
                     <Avatar>
                         <AvatarFallback> {avatarFallback}</AvatarFallback>
                     </Avatar>

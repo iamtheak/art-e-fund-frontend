@@ -264,7 +264,7 @@ export function DonationTable({creatorId}: { creatorId: number }) {
                                 className="w-full"
                             />
                         </div>
-p
+
                         <div className="w-full">
                             <label className="text-sm font-medium mb-1 block">Date Range</label>
                             <DateRangePicker

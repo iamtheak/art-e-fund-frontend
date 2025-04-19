@@ -5,7 +5,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {TDonationProps} from "@/app/[username]/_components/donation-dialog/donation-dialog";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/components/ui/label";
 import {toast} from "@/hooks/use-toast";
@@ -19,19 +19,23 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
     const session = useSession();
 
     const [isAnonymous, setIsAnonymous] = useState<boolean>(session.status !== "authenticated");
+    const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (data: TDonationSchema) => {
             return submitDonation(data);
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             toast({
                 title: "Success!",
                 description: `Your donation to ${userName} was successful.`,
                 variant: "default",
             });
-            setAmount(5);
+            setAmount(50);
             setMessage("");
+            await queryClient.invalidateQueries({
+                queryKey: ["activeDonationGoal", creatorId],
+            })
         },
         onError: () => {
             toast({
@@ -42,7 +46,7 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
         }
     });
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         try {
             const donationAmount = typeof amount === "number" ? amount : 0;
 
@@ -53,7 +57,7 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
                 isAnonymous
             });
 
-            mutation.mutate(data);
+            await mutation.mutateAsync(data);
         } catch (error: any) {
             toast({
                 title: "Validation Error",

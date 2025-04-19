@@ -20,23 +20,23 @@ const Layout = async ({children}: LayoutProps) => {
 
     return (
         <>
-            <NavBar/>
-            <main className="flex flex-1  overflow-hidden">
-                <div>
-                    <SidebarProvider className={"overflow-x-auto"}>
-                        <AppSidebar data={data}>
-                            <div className="w-full mt-5 flex justify-center">
-                                <Button className="w-[70%]" asChild>
-                                    <Link href={isCreator ? `/${user?.userName}` : "/new-signin/new-creator"}>
-                                        {isCreator ? "My Page" : "Upgrade to creator"}
-                                    </Link>
-                                </Button>
-                            </div>
-                        </AppSidebar>
-                    </SidebarProvider>
+            <div>
+                <AppSidebar data={data}>
+                    <div className="w-full mt-5 flex justify-center">
+                        <Button className="w-[70%]" asChild>
+                            <Link href={isCreator ? `/${user?.userName}` : "/new-signin/new-creator"}>
+                                {isCreator ? "My Page" : "Upgrade to creator"}
+                            </Link>
+                        </Button>
+                    </div>
+                </AppSidebar>
+            </div>
+            <div className="w-full flex flex-col justify-center">
+                <NavBar/>
+                <div className="flex flex-1 flex-col gap-4 p-4 mt-5">
+                    {children}
                 </div>
-                <div className="flex flex-1 flex-col gap-4 p-4 overflow-x-auto">{children}</div>
-            </main>
+            </div>
         </>
     )
 }
