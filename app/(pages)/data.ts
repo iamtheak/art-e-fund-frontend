@@ -7,13 +7,9 @@ export const sideBarData: TSideBarData = {
             url: "/",
             items: [
                 {
-                    title: "Home",
-                    url: "/home",
-                    isActive: true
-                },
-                {
                     title: "Explore",
                     url: "/explore",
+                    isActive: true
                 }
             ]
         },
@@ -48,7 +44,7 @@ export const sideBarData: TSideBarData = {
     ]
 }
 
-export const sideBarDataCreator : TSideBarData = {
+export const sideBarDataCreator: TSideBarData = {
     navMain: [
         {
             title: "Main",

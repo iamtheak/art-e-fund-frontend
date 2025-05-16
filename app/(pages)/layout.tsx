@@ -1,7 +1,6 @@
 import type {ReactNode} from "react"
 import Link from "next/link"
 import {AppSidebar, type TSideBarData} from "@/components/app-sidebar"
-import {SidebarProvider} from "@/components/ui/sidebar"
 import {Button} from "@/components/ui/button"
 import NavBar from "@/components/nav-bar/nav-bar"
 import {sideBarData, sideBarDataCreator} from "@/app/(pages)/data"

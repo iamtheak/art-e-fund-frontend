@@ -59,7 +59,7 @@ export default function MembersList({creatorId}: { creatorId: number | string })
                     </TabsList>
                 </Tabs>
             </div>
-            <div className={"h-[400px] overflow-y-auto"}>
+            <div className={"max-h-[400px] overflow-y-auto"}>
 
                 {sortedMembershipIds.map((membershipId) => {
                     const membersInGroup = membershipGroups[membershipId];

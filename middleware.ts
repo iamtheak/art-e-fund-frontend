@@ -22,14 +22,14 @@ export default auth(async function middleware(req: NextRequest) {
 
     // Redirect authenticated users away from auth pages
     if (user && isAuthPage) {
-        return NextResponse.redirect(new URL("/home", req.url))
+        return NextResponse.redirect(new URL("/explore", req.url))
     }
 
     // Allow access to public routes and asset images
     if (user) {
         const {role} = user;
         if (isCreatorRoute && role !== "creator") {
-            return NextResponse.redirect(new URL("/home", req.url));
+            return NextResponse.redirect(new URL("/explore", req.url));
         }
     }
 

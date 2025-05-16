@@ -18,3 +18,18 @@ export function convertFileToBase64(file: File): Promise<string> {
 export function isValidUsername(username: string) {
     return /^[a-zA-Z0-9_]+$/.test(username);
 }
+
+export function decodeUrl(url: string) {
+
+    try {
+        const decoded = decodeURIComponent(url);
+        const cleanedString = decoded
+            .replace(/(\w+):/g, '"$1":')
+            .replace(/'/g, '"');
+
+        return JSON.parse(cleanedString);
+    } catch (error) {
+        console.error("Failed to parse purchase order data:", error);
+        return null
+    }
+}

@@ -5,7 +5,7 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} 
 import {Separator} from "@/components/ui/separator";
 import {useToast} from "@/hooks/use-toast";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {signIn, useSession} from "next-auth/react";
+import {useSession} from "next-auth/react";
 import Link from "next/link";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useEffect} from "react";
@@ -14,6 +14,8 @@ import {loginRequest} from "./action";
 import {loginSchema} from "./validator";
 import {TLoginFormProps} from "@/app/(auth)/login/types";
 import {TLocalUser} from "@/app/(auth)/register/types";
+import {LoginGoogleButton} from "@/app/(auth)/_components/login-google-button";
+import Loader from "@/components/loader";
 
 export default function LoginPage() {
     const {toast} = useToast();
@@ -22,7 +24,7 @@ export default function LoginPage() {
 
     const {
         register,
-        formState: {errors},
+        formState: {errors, isSubmitting},
         handleSubmit,
         setValue,
     } = useForm<TLoginFormProps>({
@@ -47,7 +49,6 @@ export default function LoginPage() {
 
         }
     }, [params, toast]);
-
 
 
     const onSubmit = async (data: TLoginFormProps) => {
@@ -76,14 +77,12 @@ export default function LoginPage() {
 
                 const newUser: TLocalUser = JSON.parse(localUser)
 
-
-                if(newUser.email === data.email && newUser.newSignIn) {
+                if (newUser.email === data.email && newUser.newSignIn) {
                     router.push("/new-signin/new-user")
                 }
             }
 
-
-            router.refresh(); // This will update the server components and trigger a re-render
+            router.refresh();
         } catch {
             toast({
                 title: "Error",
@@ -130,7 +129,10 @@ export default function LoginPage() {
                             />
                         </div>
 
-                        <Button className="w-full" type="submit">
+                        <Button className="w-full relative" type="submit"  disabled={isSubmitting}>
+                            {
+                                isSubmitting && <Loader />
+                            }
                             Sign In
                         </Button>
                         <div className="relative">
@@ -140,44 +142,30 @@ export default function LoginPage() {
                 Or
               </span>
                         </div>
-                        <Button
-                            variant="outline"
-                            className="w-full"
-                            type="button"
-                            onClick={() =>
-                                signIn("google", {
-                                    redirect: true,
-                                    callbackUrl: "/",
-                                })
-                            }
-                        >
-                            <svg
-                                className="mr-2 h-4 w-4"
-                                aria-hidden="true"
-                                focusable="false"
-                                data-prefix="fab"
-                                data-icon="google"
-                                role="img"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 488 512"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
-                                ></path>
-                            </svg>
-                            Login with Google
-                        </Button>
+                        <LoginGoogleButton/>
                     </form>
                 </CardContent>
-                <CardFooter className="text-center text-sm text-gray-600">
-                    Don&#39;t have an account?{" "}
-                    <Link
-                        href="/register"
-                        className="font-medium text-blue-600 hover:underline"
-                    >
-                        Sign up
-                    </Link>
+                <CardFooter className="text-center flex justify-between items text-sm text-gray-600 gap-2">
+                    <div className={"flex flex-col items-start"}>
+
+                        <p>Don&#39;t have an account?{" "}</p>
+
+                        <Link
+                            href="/register"
+                            className="font-medium text-blue-600 hover:underline"
+                        >
+                            Sign up
+                        </Link>
+                    </div>
+                    <div className={"flex flex-col items-start"}>
+                        <p>Forgot your password?{" "}</p>
+                        <Link
+                            href="/forgot-password"
+                            className="font-medium text-blue-600 hover:underline"
+                        >
+                            Reset it
+                        </Link>
+                    </div>
                 </CardFooter>
             </Card>
         </div>

@@ -4,6 +4,7 @@ import axiosInstance from "@/config/axios";
 import {TEnrolledMembership, TMembership} from "@/global/types";
 import {API_ROUTES} from "@/config/routes";
 import {AxiosError} from "axios";
+import {TMembershipChartData} from "@/app/(pages)/view-memberships/@creator/_components/membership-chart";
 
 export const getCreatorMemberships = async (userName: string) => {
     try {
@@ -33,8 +34,7 @@ export const updateMembership = async (membership: TMembership) => {
 
 export const createNewMembership = async (membership: TMembership) => {
     try {
-        const response = await axiosInstance.post<TMembership>(API_ROUTES.MEMBERSHIP.BASE, membership)
-
+        await axiosInstance.post<TMembership>(API_ROUTES.MEMBERSHIP.BASE, membership)
         return "Membership created successfully"
     } catch (error) {
         if (error instanceof AxiosError) {
@@ -48,7 +48,7 @@ export const createNewMembership = async (membership: TMembership) => {
 
 export const deleteMembership = async (membershipId: number) => {
     try {
-        const response = await axiosInstance.delete(API_ROUTES.MEMBERSHIP.BASE + "/" + membershipId)
+        await axiosInstance.delete(API_ROUTES.MEMBERSHIP.BASE + "/" + membershipId)
         return "Membership deleted successfully"
     } catch (error) {
         if (error instanceof AxiosError) {
@@ -64,7 +64,20 @@ export const getCreatorMembers = async (creatorId: number | string) => {
         return response.data
     } catch (error) {
         if (error instanceof AxiosError) {
+            if (error.status === 404) {
+                return []
+            }
             throw new Error(error.response?.data)
         }
     }
 }
+
+export const getCreatorGrowth = async (creatorId: number | string) => {
+    try {
+        const response = await axiosInstance.get<TMembershipChartData[]>(API_ROUTES.MEMBERSHIP.CREATOR.GROWTH + "/" + creatorId)
+        return response.data
+    } catch (error) {
+        return []
+    }
+}
+

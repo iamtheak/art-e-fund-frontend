@@ -21,7 +21,7 @@ export type TCreator =
     creatorDescription: string;
     creatorBio: string;
     creatorGoal: string;
-    contentType: string;
+    contentType: number;
     creatorBanner: string;
     hasPosts: boolean;
     hasMembership: boolean;
@@ -72,4 +72,20 @@ export type TEnrolledMembership = {
     paidAmount: number
     creatorId: number
     membershipTier: number
+}
+
+export type TKhaltiResponse = {
+    pIdx: string,
+    payment_url: string,
+    expires_at: Date
+}
+
+
+export type TFollower = {
+    creatorId: number;       // ID of the creator being followed
+    userId: number;          // ID of the user who is following
+    followerUserName: string; // Username of the follower
+    followerAvatarUrl: string | null; // Avatar URL of the follower
+    followingUserName: string | null; // Username of who they're following (usually the creator)
+    followingAvatarUrl: string | null; // Avatar URL of who they're following
 }

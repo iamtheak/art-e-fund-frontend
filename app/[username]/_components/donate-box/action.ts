@@ -5,6 +5,7 @@ import axiosInstance from "@/config/axios";
 import {getUserFromSession} from "@/global/helper";
 import {donationSchema, TDonationSchema} from "@/app/[username]/_components/donate-box/validator";
 import {API_ROUTES} from "@/config/routes";
+import {TKhaltiResponse} from "@/global/types";
 
 export async function submitDonation(data: TDonationSchema) {
     try {
@@ -20,9 +21,12 @@ export async function submitDonation(data: TDonationSchema) {
             userId: userId,
         };
 
-        await axiosInstance.post(API_ROUTES.DONATION.BASE, payload);
+        const response = await axiosInstance.post<TKhaltiResponse>(API_ROUTES.DONATION.KHALTI.BASE, payload);
 
-        return {success: true, message: "Donation sent successfully!"};
+        return {
+            success: true, message: "Donation sent successfully!", payment_url: response?.data?.payment_url ?? ""
+        }
+
     } catch (error) {
         if (error instanceof Error) {
             return {success: false, message: error.message};

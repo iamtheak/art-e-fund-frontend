@@ -2,7 +2,7 @@ import * as React from "react"
 
 import {
     Sidebar,
-    SidebarContent,
+    SidebarContent, SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -11,6 +11,10 @@ import {
     SidebarMenuItem,
     SidebarRail
 } from "@/components/ui/sidebar"
+import {signOut} from "@/auth";
+import {redirect} from "next/navigation";
+import {Button} from "@/components/ui/button";
+import LogoutButton from "@/components/logout-button";
 
 export type TSideBarData = {
     navMain: {
@@ -32,8 +36,8 @@ export function AppSidebar({data, children, ...props}: {
 
 
     return (
-        <Sidebar {...props} collapsible={"offcanvas"} variant={"inset"} >
-            <SidebarContent className="bg-white border-r">
+        <Sidebar {...props} collapsible={"offcanvas"} variant={"inset"}>
+            <SidebarContent className="bg-white border-r relative">
                 {/* We create a SidebarGroup for each parent. */}
                 {data.navMain.map((item) => (
                     <SidebarGroup key={item.title}>
@@ -52,6 +56,9 @@ export function AppSidebar({data, children, ...props}: {
                     </SidebarGroup>
                 ))}
                 {children}
+                <SidebarFooter>
+                   <LogoutButton />
+                </SidebarFooter>
             </SidebarContent>
             <SidebarRail/>
         </Sidebar>

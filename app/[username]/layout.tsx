@@ -6,11 +6,13 @@ import {getUserFromSession, isValidUsername} from "@/global/helper";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import CreatorBanner from "@/app/[username]/_components/creator-banner/creator-banner";
 import BannerDialogContent from "@/app/[username]/_components/creator-banner/dialog-content";
-import {GetCreatorByUserName} from "./action";
+import {AddProfileVisit, GetCreatorByUserName, getFollowStatus} from "./action";
 import {notFound} from "next/navigation";
 import Image from "next/image";
 import DonationDialog from "@/app/[username]/_components/donation-dialog/donation-dialog";
 import {Metadata} from "next";
+import {QueryClient} from "@tanstack/react-query";
+import FollowButton from "@/app/[username]/_components/folllow-button/follow-button";
 
 interface CreatorLayoutProps {
     children: React.ReactNode;
@@ -49,12 +51,22 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
 
     const isSameUser = auth?.userName === username;
 
-    console.log(parameters.username, parameters.segment);
+
+    if (!isSameUser) {
+        await AddProfileVisit(creator?.creatorId ?? 0);
+    }
+
+
+    const client = new QueryClient();
+
+    await client.prefetchQuery({
+        queryKey: ['followStatus', creator?.creatorId],
+        queryFn: () => getFollowStatus(creator?.creatorId ?? 0),
+    })
     return (
-        <>
+        <div className={"w-full relative"}>
             <NavBar/>
             <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-                {/* Banner Section */}
                 <div
                     className="relative w-full h-48 sm:h-64 md:h-80 bg-gradient-to-r from-mint/80 to-mint overflow-hidden">
                     {creator.creatorBanner ? (
@@ -105,11 +117,11 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
                                 {!isSameUser && (
                                     <div className="flex gap-3">
                                         <DonationDialog userName={creator.userName} creatorId={creator.creatorId}/>
-                                        <Button
-                                            className="bg-yinmn-blue hover:bg-blue-700 transition-colors">Follow</Button>
                                     </div>
                                 )}
-                                <span className="text-sm text-gray-600">{!isSameUser && "Join"} 3000 followers</span>
+                                <span className="text-sm text-gray-600">
+                                    <FollowButton creatorId={creator.creatorId} isSameUser={isSameUser}/>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -157,13 +169,11 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
                         </div>
                     }
 
-
-                    {/* Page Content */}
                     <div className="pb-12">
                         {children}
                     </div>
                 </div>
             </main>
-        </>
+        </div>
     );
 }

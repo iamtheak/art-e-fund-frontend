@@ -1,21 +1,25 @@
 // app/[username]/page.tsx
-import {Progress} from "@/components/ui/progress";
 import Link from "next/link";
 import {Icon} from "@iconify/react";
 import Donate from "@/app/[username]/_components/donate-box/donate";
 import {TCreator} from "@/global/types";
-import {GetCreatorActiveDonationGoal, GetCreatorByUserName} from "@/app/[username]/action";
+import {AddProfileVisit, GetCreatorActiveDonationGoal, GetCreatorByUserName} from "@/app/[username]/action";
 import {notFound} from "next/navigation";
 import {getUserFromSession} from "@/global/helper";
 import {QueryClient} from "@tanstack/react-query";
 import CreatorDonationGoal from "@/app/[username]/_components/donation-goal/donation-goal";
+import ToastHandler from "@/app/[username]/_components/toast-handler";
 
 export default async function Page({
-    params,
-}: {
-    params: Promise<{ username: string }>;
+                                       params,
+                                       searchParams,
+                                   }: {
+    params: Promise<{ username: string }>
+    searchParams: Promise<{ message?: string }>
 }) {
     const slug = (await params).username;
+    const message = (await searchParams).message;
+
 
     let creator: TCreator | null = null;
 
@@ -35,18 +39,20 @@ export default async function Page({
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery({
         queryKey: ['activeDonationGoal', creator?.creatorId],
-        queryFn: () => GetCreatorActiveDonationGoal(creator?.creatorId),
+        queryFn: () => GetCreatorActiveDonationGoal(creator?.creatorId ?? 0),
         staleTime: 5 * 60 * 1000,
     })
 
+
     return (
         <div className="container mx-auto px-4 py-6">
+            <ToastHandler message={message}/>
             <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Column */}
                 <div className="w-full lg:w-2/5 space-y-6">
                     {/* Donation Goal Card */}
                     <div className="w-full relative">
-                        <CreatorDonationGoal creatorId={creator?.creatorId} isSameUser={isSameUser} />
+                        <CreatorDonationGoal creatorId={creator?.creatorId ?? 0} isSameUser={isSameUser}/>
                     </div>
 
                     {/* About Creator Card */}
@@ -61,13 +67,13 @@ export default async function Page({
 
                         <div className="flex justify-end gap-4">
                             <Link href="https://instagram.com" className="hover:opacity-80 transition-opacity">
-                                <Icon width={28} height={28} icon="skill-icons:instagram" />
+                                <Icon width={28} height={28} icon="skill-icons:instagram"/>
                             </Link>
                             <Link href="https://facebook.com" className="hover:opacity-80 transition-opacity">
-                                <Icon width={28} height={28} icon="logos:facebook" />
+                                <Icon width={28} height={28} icon="logos:facebook"/>
                             </Link>
                             <Link href="https://youtube.com" className="hover:opacity-80 transition-opacity">
-                                <Icon width={28} height={28} icon="logos:youtube-icon" />
+                                <Icon width={28} height={28} icon="logos:youtube-icon"/>
                             </Link>
                         </div>
                     </div>
@@ -76,16 +82,21 @@ export default async function Page({
                 {/* Right Column */}
                 <div className="w-full lg:w-3/5">
                     {!isSameUser ? (
-                        <Donate userName={slug} creatorId={creator?.creatorId}/>
+                        <Donate userName={slug} creatorId={creator?.creatorId ?? 0}/>
                     ) : (
-                        <div className="bg-gradient-to-r from-mint to-mint/90 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-center sm:text-left">
+                        <div
+                            className="bg-gradient-to-r from-mint to-mint/90 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div
+                                className="flex flex-col sm:flex-row justify-center items-center gap-4 text-center sm:text-left">
                                 <div className="flex items-center gap-3">
                                     <p className="text-lg font-medium text-slate-800">
-                                        Add your new post to your creator page
+                                        <Link href={`/manage-posts`}>
+                                            Add your new post to your creator page
+                                        </Link>
                                     </p>
-                                    <div className="bg-yinmn-blue text-white rounded-full p-2 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors">
-                                        <Icon icon="mdi:plus" width={24} height={24} />
+                                    <div
+                                        className="bg-yinmn-blue text-white rounded-full p-2 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors">
+                                        <Icon icon="mdi:plus" width={24} height={24}/>
                                     </div>
                                 </div>
                             </div>

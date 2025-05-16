@@ -6,7 +6,20 @@ export const API_ROUTES = {
         REGISTER: "/auth/register",
         LOGOUT: "/auth/logout",
         REFRESH: "/auth/refresh",
-        GOOGLE_VERIFY: "/auth/google-login"
+        GOOGLE_VERIFY: "/auth/google-login",
+        FORGOT_PASSWORD: "/auth/forgotpassword",
+        RESET_PASSWORD: "/auth/updateforgotpassword",
+        VERIFY_ACCOUNT: "/auth/verifyaccount",
+        RESEND_VERIFICATION: "/auth/resendverificationlink",
+    },
+    HOME: {
+        TOTAL_MEMBERS: "/home/gettotalmembers",
+        TOTAL_DONATIONS: "/home/gettotaldonations",
+        TOTAL_PROFILE_VIEWS: "/home/getprofileviews",
+        DAILY_DONATION: "/home/getdailydonations",
+        TOP_DONATORS: "/home/gettopdonators",
+        DONATION_SOURCES: "/home/getdonationsources",
+        NEW_MEMBERS: "/home/getnewmembers",
     },
     POST: {
         BASE: "/post",
@@ -27,12 +40,20 @@ export const API_ROUTES = {
         USER_ID: "/creators/user/",
         USERNAME: "/creators/username/",
         CONTENT_TYPE: "/creators/content-type",
+        PROFILE_VISIT: "/creators/profile-visit",
+        FOLLOW: "/creators/follow", // Base path for POST: /follow/{creatorId}/{userId}
+        UNFOLLOW: "/creators/unfollow", // Base path for DELETE: /unfollow/{creatorId}/{userId}
+        IS_FOLLOWING: "/creators/is-following", // Base path for GET: /is-following/{creatorId}/{userId}
+        FOLLOWERS: "/creators/followers", // Base path for GET: /followers/{creatorId}
+        FOLLOWER_COUNT: "/creators/follower-count", // Base path for GET: /follower-count/{creatorId}
+        FOLLOWING: "/creators/following", // Base
     },
     MEMBERSHIP: {
         BASE: "/membership",
         CREATOR: {
             BASE: "/membership/creator",
             userName: "/membership/creator/username",
+            GROWTH: "/membership/creator/growth",
         },
         ENROLL: "/membership/enroll",
         CHANGE: "/membership/change",
@@ -40,6 +61,10 @@ export const API_ROUTES = {
         ENROLLED: {
             USER: "/membership/enrolled/user",
             CREATOR: "/membership/enrolled/creator",
+        },
+        KHALTI: {
+            BASE: "/membership/khalti/initiate",
+            VERIFY: "/membership/khalti/verify",
         },
     },
     DONATION: {
@@ -51,6 +76,10 @@ export const API_ROUTES = {
             CREATOR: "/donation/goal/creator",
             ACTIVE: "/donation/goal/active",
             INACTIVE: "/donation/goal/inactive",
+        },
+        KHALTI: {
+            BASE: "/donation/khalti/initiate",
+            VERIFY: "/donation/khalti/verify",
         }
     },
     USER: "/user",

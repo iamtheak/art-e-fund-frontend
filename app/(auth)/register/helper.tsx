@@ -1,7 +1,6 @@
 import {API_ROUTES, BASE_URL} from "@/config/routes";
 import axios, {AxiosError} from "axios";
 import {TRegisterFormProps} from "./types";
-import {instanceof} from "zod";
 
 export const registerRequest = async (data: TRegisterFormProps) => {
     try {
@@ -17,12 +16,16 @@ export const registerRequest = async (data: TRegisterFormProps) => {
         return response.data;
 
     } catch (e) {
-        let error = e as AxiosError<{ errors: string[] } | string>;
+        const error = e as AxiosError<{ errors: string[] } | string>;
 
-        if (error.response?.data instanceof Array) {
-            throw new Error(error.response?.data.errors[0]);
+        if (error.response?.data && typeof error.response.data === "object") {
+            const errorMessage = error.response.data.errors[0];
+            throw new Error(errorMessage);
         }
-        
-        throw new Error(error.response?.data);
+        if (error.response?.data && typeof error.response.data === "string") {
+            throw new Error(error.response.data);
+        }
+
+        throw new Error("An unexpected error occurred");
     }
 };

@@ -6,6 +6,7 @@ import {useMutation, useQuery} from "@tanstack/react-query";
 import {EnrollMembership, GetEMByUserIdMembershipId} from "@/app/[username]/action";
 import {toast} from "@/hooks/use-toast";
 import {useSession} from "next-auth/react";
+import {useRouter} from "next/navigation";
 
 export type TMembershipProfileCardProps = {
     membership: TMembership
@@ -13,6 +14,7 @@ export type TMembershipProfileCardProps = {
 export default function MembershipProfileCard({membership}: TMembershipProfileCardProps) {
 
     const session = useSession()
+    const router = useRouter()
 
     const {data: enrolledMembership} = useQuery<TEnrolledMembership>({
         queryKey: ["membership", membership.membershipId],
@@ -23,8 +25,14 @@ export default function MembershipProfileCard({membership}: TMembershipProfileCa
 
     const mutation = useMutation({
         mutationFn: () => EnrollMembership(membership.membershipId),
-        onSuccess: () => {
-            toast({"title": "Success", "description": "Membership enrolled successfully"})
+        onSuccess: (data) => {
+            if (!data) {
+                toast({"title": "Error", "description": "Something went wrong", variant: "destructive"})
+                return
+            }
+            toast({"title": "Success", "description": "Your request has been verified and will be redirecting you"})
+
+            router.push(data.payment_url)
         },
         onError: (error) => {
             toast({"title": "Error", "description": error.message})

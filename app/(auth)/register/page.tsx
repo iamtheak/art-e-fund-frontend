@@ -1,14 +1,7 @@
 "use client";
 import FloatingInput from "@/components/floating-input/floating-input";
 import {Button} from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card";
 import {Separator} from "@/components/ui/separator";
 import Link from "next/link";
 import {TRegisterFormProps} from "./types";
@@ -18,6 +11,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {registerRequest} from "./helper";
 import {useToast} from "@/hooks/use-toast";
 import {useRouter} from "next/navigation";
+import Loader from "@/components/loader";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -25,7 +19,7 @@ export default function RegisterPage() {
 
     const {
         register,
-        formState: {errors},
+        formState: {errors, isSubmitting},
         handleSubmit,
         setValue,
     } = useForm<TRegisterFormProps>({
@@ -46,9 +40,8 @@ export default function RegisterPage() {
             if (response != null) {
                 toast({
                     title: "Registration Successful",
-                    description: "You have successfully registered please login",
+                    description: "A verification email has been sent to your email address.",
                 });
-
 
                 localStorage.setItem("localUser", JSON.stringify({
                     email: data.email,
@@ -57,11 +50,10 @@ export default function RegisterPage() {
 
                 router.push("/login");
             }
-        } catch (e) {
-            let error = e as Error;
+        } catch (e: Error) {
             toast({
                 title: "Error",
-                description: error.message,
+                description: e.message,
             });
         }
     };
@@ -154,8 +146,16 @@ export default function RegisterPage() {
                         <Button
                             className="w-full"
                             type="submit"
+                            disabled={isSubmitting}
                         >
-                            Register
+                            {
+                                isSubmitting && <Loader/>
+                            }
+                            {
+                                isSubmitting
+                                    ? "Creating Account..."
+                                    : "Create Account"
+                            }
                         </Button>
                     </form>
                     <div className="relative">

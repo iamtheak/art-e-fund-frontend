@@ -3,8 +3,9 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import {getUserFromSession} from "@/global/helper";
 import {MembershipCards} from "./_components/membership-cards";
-import {getCreatorMemberships} from "./action";
+import {getCreatorGrowth, getCreatorMemberships} from "./action";
 import MembersList from "@/app/(pages)/view-memberships/@creator/_components/members-list";
+import MembershipChart from "@/app/(pages)/view-memberships/@creator/_components/membership-chart";
 
 export default async function ViewCreatorMembership() {
     const user = await getUserFromSession();
@@ -15,6 +16,11 @@ export default async function ViewCreatorMembership() {
         queryFn: () => getCreatorMemberships(user?.userName ?? "")
     });
 
+    await queryClient.prefetchQuery({
+        queryKey: ['membership', 'growth', user?.creatorId],
+        queryFn: () => getCreatorGrowth(user?.creatorId ?? "")
+    })
+
     return (
         <div className="w-full flex flex-col gap-6  mx-auto px-4 py-6">
             <div className="flex justify-between items-center">
@@ -23,8 +29,6 @@ export default async function ViewCreatorMembership() {
                     <p className="text-muted-foreground mt-1">Manage your memberships and view subscriber details</p>
                 </div>
             </div>
-
-            {/* <MembershipMetrics userName={user?.userName ?? ""} /> */}
 
             <Tabs defaultValue="memberships" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
@@ -48,7 +52,7 @@ export default async function ViewCreatorMembership() {
                             <CardDescription>View and manage your subscribers across all membership
                                 tiers</CardDescription>
                         </CardHeader>
-                        <CardContent >
+                        <CardContent>
                             <HydrationBoundary state={dehydrate(queryClient)}>
                                 <MembersList creatorId={user?.creatorId ?? 0}/>
                             </HydrationBoundary>
@@ -57,17 +61,9 @@ export default async function ViewCreatorMembership() {
                 </TabsContent>
 
                 <TabsContent value="analytics" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Membership Growth</CardTitle>
-                            <CardDescription>Track your membership growth over time</CardDescription>
-                        </CardHeader>
-                        <CardContent className="h-80">
-                            <div className="flex items-center justify-center h-full border-2 border-dashed rounded-md">
-                                <p className="text-muted-foreground">Analytics visualization will appear here</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <HydrationBoundary state={dehydrate(queryClient)}>
+                        <MembershipChart creatorId={user?.creatorId ?? 0}/>
+                    </HydrationBoundary>
                 </TabsContent>
             </Tabs>
         </div>

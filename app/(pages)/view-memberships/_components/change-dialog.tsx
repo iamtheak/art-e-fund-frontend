@@ -8,6 +8,8 @@ import {useMutation, useQuery} from "@tanstack/react-query";
 import {Card, CardContent} from "@/components/ui/card";
 import {changeMembership} from "@/app/(pages)/view-memberships/action";
 import {toast} from "@/hooks/use-toast";
+import {useRouter} from "next/navigation";
+import Loader from "@/components/loader";
 
 type EditDialogProps = {
     isOpen: boolean;
@@ -18,7 +20,8 @@ type EditDialogProps = {
 
 const ChangeDialog = ({isOpen, setIsOpen, creatorId, currentEM}: EditDialogProps) => {
 
-    const currentMembershipId = currentEM?.membershipId;
+    const currentEMId = currentEM?.membershipId;
+    const router = useRouter();
 
     const {data: membershipsData, isLoading} = useQuery({
         queryKey: ["memberships", creatorId],
@@ -29,15 +32,21 @@ const ChangeDialog = ({isOpen, setIsOpen, creatorId, currentEM}: EditDialogProps
 
     const mutation = useMutation({
         mutationFn: async (membershipId: number) => {
-
-            return changeMembership(currentMembershipId ?? 0, membershipId);
+            return changeMembership(membershipId);
         },
-        onSuccess: () => {
-            toast({title: "Membership changed successfully", description: "Membership changed successfully"});
+        onSuccess: (data) => {
+
+            if (data) {
+                toast({title: "Membership changed verfied", description: "You will be redirected to khalti "});
+                router.push(data.payment_url);
+            } else {
+                toast({title: "Error", description: "Something went wrong"});
+            }
+
             setIsOpen(false);
         },
         onError: (error) => {
-            toast({title: "Error while creating membership", description: error.message});
+            toast({title: "Error while creating membership", description: error.message, variant: "destructive"});
         }
     });
 
@@ -53,10 +62,13 @@ const ChangeDialog = ({isOpen, setIsOpen, creatorId, currentEM}: EditDialogProps
             </div>
             <div className="flex gap-3 mt-5">
                 {
+                    mutation.isPending && <Loader/>
+                }
+                {
                     isLoading ? (
                         <div className="text-center py-4">Loading memberships...</div>
                     ) : membershipsData && membershipsData.length > 0 ? (
-                        membershipsData.map((membership: TMembership) => membership.membershipId !== currentMembershipId && membership.membershipTier >= currentEM.membershipTier && (
+                        membershipsData.map((membership: TMembership) => membership.membershipId !== currentEMId && membership.membershipTier >= currentEM.membershipTier && (
                             <Card key={membership.membershipId}>
                                 <CardContent className="mb-3">
                                     <div key={membership.membershipId} className="flex flex-col gap-4 p-4">
