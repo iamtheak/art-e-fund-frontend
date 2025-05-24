@@ -17,6 +17,7 @@ import Loader from "@/components/loader";
 import {PostFormValues, postSchema} from "@/app/(pages)/manage-posts/schema";
 import {toast} from "@/hooks/use-toast";
 import {uploadPostImage} from "@/app/(pages)/manage-posts/action";
+import {ConfirmationDialog} from "@/components/confirmation-dialog/confirmation-dialog";
 
 interface PostFormProps {
     defaultValues?: PostFormValues;
@@ -30,6 +31,7 @@ export function PostForm({defaultValues, onSubmit, isSubmitting, mode, onCancel}
     const [image, setImage] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const uploadImageRef = useRef<UploadImageRef>(null);
+    const [open, setOpen] = useState(false);
 
     const form = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
@@ -52,33 +54,44 @@ export function PostForm({defaultValues, onSubmit, isSubmitting, mode, onCancel}
     const onRemoveImage = () => {
         uploadImageRef.current?.clearImage();
         setImage(null);
-        form.setValue("imageUrl", "");
+        form.setValue("imageUrl", defaultValues?.imageUrl || "");
     };
 
+    const handleOpenDialog = async () => {
+        if (!image && !defaultValues?.imageUrl) {
+            setOpen(true);
+        } else {
+            await handleSubmit(form.getValues());
+        }
+    }
 
     const handleSubmit = async (data: PostFormValues) => {
         try {
             // If we're editing a post and have a new image, upload it with the post slug
-            if (image && mode === "edit" && defaultValues?.postSlug) {
-                setIsUploading(true);
-                const imageUrl = await uploadPostImage(image, defaultValues.postSlug);
-                if (imageUrl) {
-                    data.imageUrl = imageUrl;
+
+            if (data.imageUrl !== defaultValues?.imageUrl) {
+
+                if (image && mode === "edit" && defaultValues?.postSlug) {
+                    setIsUploading(true);
+                    const imageUrl = await uploadPostImage(image, defaultValues.postSlug);
+                    if (imageUrl) {
+                        data.imageUrl = imageUrl;
+                    }
+                    setIsUploading(false);
                 }
-                setIsUploading(false);
-            }
-            // If creating a new post with image, upload first to get temp URL
-            else if (image && mode === "create") {
-                setIsUploading(true);
-                const imageUrl = await uploadPostImage(image);
-                if (imageUrl) {
-                    data.imageUrl = imageUrl;
+                // If creating a new post with image, upload first to get temp URL
+                else if (image && mode === "create") {
+                    setIsUploading(true);
+                    const imageUrl = await uploadPostImage(image);
+                    if (imageUrl) {
+                        data.imageUrl = imageUrl;
+                    }
+                    setIsUploading(false);
                 }
-                setIsUploading(false);
             }
 
             await onSubmit(data);
-        } catch (error) {
+        } catch {
             toast({
                 title: "Error",
                 description: "Failed to upload image",
@@ -90,11 +103,15 @@ export function PostForm({defaultValues, onSubmit, isSubmitting, mode, onCancel}
 
     return (
         <Card>
+            <ConfirmationDialog action={() => handleSubmit(form.getValues())}
+                                description={`Do you want to have a post with no picture? `}
+                                open={open} setOpen={setOpen} title={"No picture uploaded"}
+                                actionVariant={"destructive"}/>
             <CardHeader>
                 <CardTitle>{mode === "create" ? "Create New Post" : "Edit Post"}</CardTitle>
             </CardHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)}>
+                <form onSubmit={form.handleSubmit(handleOpenDialog)}>
                     <CardContent className="space-y-4">
                         <FormField
                             control={form.control}
@@ -109,7 +126,6 @@ export function PostForm({defaultValues, onSubmit, isSubmitting, mode, onCancel}
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="content"

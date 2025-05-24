@@ -30,7 +30,7 @@ export default async function Page() {
                     <CardTitle className="text-2xl font-bold">Donation Goals</CardTitle>
                     <p className="text-sm text-muted-foreground">View and manage your donation goals</p>
                 </CardHeader>
-                <CardContent className="px-4 py-4 bg-white w-full h-full">
+                <CardContent className="px-4 py-4 w-full h-full">
                     <HydrationBoundary state={dehydrate(queryClient)}>
                         <ViewDonationGoal creatorId={creatorId}/>
                     </HydrationBoundary>

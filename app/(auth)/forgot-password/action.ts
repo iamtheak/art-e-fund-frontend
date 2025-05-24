@@ -6,7 +6,6 @@ import {AxiosError} from "axios";
 export async function forgotPassword(email: string) {
     try {
 
-        console.log(email)
         const response = await axiosInstance.post<string>(API_ROUTES.AUTH.FORGOT_PASSWORD, {
             email: email
         })

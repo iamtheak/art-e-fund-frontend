@@ -89,7 +89,6 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
             }
 
 
-
             return {...token, ...user};
         },
 
@@ -103,6 +102,10 @@ export const {auth, handlers, signIn, signOut} = NextAuth({
 
             return session;
         },
+
+        async redirect({url, baseUrl}) {
+            return `${baseUrl}/explore`;
+        }
     },
     pages: {
         signIn: "/login",

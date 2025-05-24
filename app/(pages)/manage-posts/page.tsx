@@ -1,7 +1,7 @@
 "use client";
 // app/(pages)/manage-posts/page.tsx
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Loader2} from "lucide-react";
@@ -11,12 +11,25 @@ import {useSession} from "next-auth/react";
 import {PostList} from "@/app/(pages)/manage-posts/post-list";
 import {PostForm} from "@/app/(pages)/manage-posts/post-form";
 import {useToast} from "@/hooks/use-toast";
+import {useSearchParams} from "next/navigation";
 
 export default function ManagePosts() {
     const [editingPost, setEditingPost] = useState<Post | null>(null);
     const {toast} = useToast();
     const queryClient = useQueryClient();
+
+    const searchParams = useSearchParams()
+    const isCreate = searchParams.get("create") === "true";
+
     const [activeTab, setActiveTab] = useState("posts");
+
+    useEffect(() => {
+        if (isCreate) {
+            setActiveTab("create");
+        } else {
+            setActiveTab("posts");
+        }
+    }, [isCreate, setActiveTab, searchParams.get("create") === "true"])
 
     const session = useSession();
     const creatorId = session.data?.user.creatorId ?? 0;
@@ -121,6 +134,7 @@ export default function ManagePosts() {
                         </div>
                     ) : (
                         <PostList
+                            creatorId={creatorId}
                             posts={posts}
                             onEdit={handleEditPost}
                             onDelete={handleDeletePost}

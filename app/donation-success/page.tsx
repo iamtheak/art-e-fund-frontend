@@ -19,6 +19,7 @@ type SearchParams = {
 interface PurchaseOrderData {
     userId: number;
     creatorId: number;
+    amount: number;
 }
 
 export const metadata: Metadata = {
@@ -65,9 +66,9 @@ export default async function DonationSuccess({
         paymentId ?? "",
         purchaseData?.creatorId ?? 0,
         purchaseData?.userId ?? 0,
-        purchaseOrderName ?? ""
+        purchaseOrderName ?? "",
+        purchaseData?.amount ?? 0,
     );
-
 
     if (verify === null) {
         redirect("/home")

@@ -57,3 +57,21 @@ export const changeMembership = async (membershipId: number) => {
         throw error
     }
 }
+
+export const endEnrolledMembership = async (enrolledMembershipId: number) => {
+    const user = await getUserFromSession()
+
+    if (user === null) {
+        throw new Error("User should be logged in to end membership")
+    }
+    try {
+        const response = await axiosInstance.delete(API_ROUTES.MEMBERSHIP.ENROLLED.END + `?enrolledMembershipId=${enrolledMembershipId}`,)
+
+        return response.data
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+        throw error
+    }
+}

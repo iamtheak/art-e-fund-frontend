@@ -12,6 +12,7 @@ export type TUser = {
     profilePicture: string;
     error?: string | null;
     creatorId?: number;
+    createdAt: Date;
 }
 
 export type TCreator =
@@ -72,6 +73,7 @@ export type TEnrolledMembership = {
     paidAmount: number
     creatorId: number
     membershipTier: number
+    profilePicture: string
 }
 
 export type TKhaltiResponse = {

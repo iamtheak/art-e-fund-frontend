@@ -35,15 +35,31 @@ export const sideBarData: TSideBarData = {
                     title: "Profile",
                     url: "/profile",
                 },
-                {
-                    title: "Account",
-                    url: "/account",
-                },
             ]
         }
     ]
 }
 
+
+export const sideBarAdminData: TSideBarData = {
+    navMain: [
+        {
+            title: "Main",
+            url: "/",
+            items: [
+                {
+                    title: "Dashboard",
+                    url: "/dashboard",
+                    isActive: true
+                },
+                {
+                    title: "Explore",
+                    url: "/explore",
+                }
+            ]
+        }
+    ]
+}
 export const sideBarDataCreator: TSideBarData = {
     navMain: [
         {
@@ -86,10 +102,6 @@ export const sideBarDataCreator: TSideBarData = {
                 {
                     title: "Profile",
                     url: "/profile",
-                },
-                {
-                    title: "Account",
-                    url: "/account",
                 },
             ]
         }

@@ -110,7 +110,6 @@ export default function FollowButton({creatorId, isSameUser}: FollowButtonProps)
     }
 
 
-    console.log(followStatus)
     const isMutating = isFollowingPending || isUnfollowingPending;
     const isFollowing = followStatus?.isFollowing ?? false;
     const followerCount = followStatus?.followerCount;

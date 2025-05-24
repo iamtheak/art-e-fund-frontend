@@ -33,14 +33,16 @@ export default async function ProfileLayout({
                         )}
                     </TabsList>
 
-                    <TabsContent value="user" className="mt-6 bg-white p-6 rounded-lg shadow">
+                    {/* Updated className for theme compatibility */}
+                    <TabsContent value="user" className="mt-6 bg-background p-6 rounded-lg shadow">
                         <Suspense fallback={<div>Loading user profile...</div>}>
                             {user}
                         </Suspense>
                     </TabsContent>
 
                     {isCreator && (
-                        <TabsContent value="creator" className="mt-6 bg-white p-6 rounded-lg shadow">
+                        // Updated className for theme compatibility
+                        <TabsContent value="creator" className="mt-6 bg-background p-6 rounded-lg shadow">
                             <Suspense fallback={<div>Loading creator profile...</div>}>
                                 {creator}
                             </Suspense>

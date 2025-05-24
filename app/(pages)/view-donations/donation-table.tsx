@@ -172,16 +172,6 @@ export function DonationTable({creatorId}: { creatorId: number }) {
             header: "Supporter",
             accessorKey: "userName",
             cell: ({row}) => row.original.userName || "Anonymous"
-        },
-        {
-            header: "View",
-            cell: ({row}) => (
-                <Button className={"bg-blue-500 text-white p-2 rounded-md"} onClick={() => {
-                    alert(`Donation ID: ${row.original.donationId}`)
-                }}>
-                    View
-                </Button>
-            )
         }
     ];
 

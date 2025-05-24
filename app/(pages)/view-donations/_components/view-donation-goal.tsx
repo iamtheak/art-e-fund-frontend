@@ -22,12 +22,15 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {toast} from "@/hooks/use-toast";
+import {ConfirmationDialog} from "@/components/confirmation-dialog/confirmation-dialog";
 
 export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
     const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
 
+
+    const [isOpen, setOpen] = useState(false);
     const {data: goals = [], isLoading} = useQuery<TDonationGoal[]>({
         queryKey: ['donationGoals'],
         queryFn: () => fetchAllDonationGoals(creatorId),
@@ -40,7 +43,7 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
             setIsEditing(false);
         },
         onError: (error) => {
-            toast({title:"Error updating goal", description: error.message, variant: "destructive"});
+            toast({title: "Error updating goal", description: error.message, variant: "destructive"});
         }
     });
 
@@ -52,7 +55,7 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
             createForm.reset();
         },
         onError: (error) => {
-            toast({title:"Error creating goal", description: error.message, variant: "destructive"});
+            toast({title: "Error creating goal", description: error.message, variant: "destructive"});
         }
     });
 
@@ -63,7 +66,7 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
         },
         onError: (error) => {
 
-            toast({title:"Error deactivating goal", description: error.message, variant: "destructive"});
+            toast({title: "Error deactivating goal", description: error.message, variant: "destructive"});
         }
     });
 
@@ -118,10 +121,13 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
     }
 
     return (
-        <div className="container relative">
+        <div className="container relative w-full h-full ">
             {(updateGoalMutation.isPending || createGoalMutation.isPending || deactivateGoalMutation.isPending) &&
                 <Loader text="Processing..."/>}
 
+            <ConfirmationDialog open={isOpen} description={"Do you want to deactivate the donation goal"}
+                                title={"Deactivate donation goal"} actionVariant={"destructive"} setOpen={setOpen}
+                                action={handleDeactivateClick}/>
             <Tabs defaultValue="current" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
                     <TabsTrigger value="current">Current Goal</TabsTrigger>
@@ -129,13 +135,15 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
                 </TabsList>
 
                 <TabsContent value="current">
-                    <Card>
+                    <Card className={"w-full"}>
                         <CardHeader>
                             <CardTitle className="flex justify-between items-center">
                                 <span>Current Donation Goal</span>
                                 {activeGoal && !isEditing && !isCreating && (
                                     <div className="flex gap-2">
-                                        <Button variant="outline" size="sm" onClick={handleDeactivateClick}>
+                                        <Button variant="outline" size="sm" onClick={() => {
+                                            setOpen(true);
+                                        }}>
                                             Deactivate
                                         </Button>
                                         <Button variant="outline" size="sm" onClick={handleEditClick}>
@@ -217,7 +225,6 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
                             ) : isEditing ? (
                                 <Form {...editForm}>
                                     <form onSubmit={editForm.handleSubmit((data) => {
-                                            console.log(editForm.formState.errors)
                                             return updateGoalMutation.mutate(data)
                                         }
                                     )} className="space-y-4">
@@ -322,9 +329,13 @@ export default function ViewDonationGoal({creatorId}: { creatorId: number }) {
                                                         <p className="text-muted-foreground">{goal.goalDescription}</p>
                                                     </div>
                                                     <span
-                                                        className={`text-sm px-2 py-1 rounded-full ${goal.isGoalReached ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                            {goal.isGoalReached ? "Completed" : "Ended"}
-                          </span>
+                                                        className={`text-sm px-2 py-1 rounded-full ${
+                                                            goal.isGoalReached
+                                                                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200"
+                                                                : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200"
+                                                        }`}>
+                                                       {goal.isGoalReached ? "Completed" : "Ended"}
+                                                   </span>
                                                 </div>
                                                 <div className="mb-2">
                                                     <Progress value={(goal.goalProgress / goal.goalAmount) * 100}/>

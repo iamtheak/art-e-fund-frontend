@@ -48,7 +48,7 @@ export async function uploadCreatorBanner(userId: string | number, file: File | 
     }
 }
 
-export async function UpdateCreatorDetails(creator: TCreator) {
+export async function UpdateCreatorDetails(creator: Partial<TCreator>) {
     try {
         const response = await axiosInstance.put<TCreator>(API_ROUTES.CREATOR.BASE + `/${creator.creatorId}`, {
             ...creator,

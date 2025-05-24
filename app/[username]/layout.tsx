@@ -1,7 +1,4 @@
 import NavBar from "@/components/nav-bar/nav-bar";
-import {Button} from "@/components/ui/button";
-import Link from "next/link";
-import CreatorAvatar from "@/app/[username]/_components/avatar";
 import {getUserFromSession, isValidUsername} from "@/global/helper";
 import {Avatar, AvatarFallback} from "@/components/ui/avatar";
 import CreatorBanner from "@/app/[username]/_components/creator-banner/creator-banner";
@@ -13,6 +10,10 @@ import DonationDialog from "@/app/[username]/_components/donation-dialog/donatio
 import {Metadata} from "next";
 import {QueryClient} from "@tanstack/react-query";
 import FollowButton from "@/app/[username]/_components/folllow-button/follow-button";
+import PageNavList from "@/app/[username]/_components/page-nav-list";
+import {Suspense} from "react";
+import Loader from "@/components/loader";
+
 
 interface CreatorLayoutProps {
     children: React.ReactNode;
@@ -66,13 +67,14 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
     return (
         <div className={"w-full relative"}>
             <NavBar/>
-            <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+            {/* Updated main background for dark mode compatibility */}
+            <main className="min-h-screen dark:slate-200">
                 <div
-                    className="relative w-full h-48 sm:h-64 md:h-80 bg-gradient-to-r from-mint/80 to-mint overflow-hidden">
+                    className="relative w-full h-48 sm:h-64 md:h-80 bg-gradient-to-r  overflow-hidden">
                     {creator.creatorBanner ? (
                         <CreatorBanner image={creator.creatorBanner}/>
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-yinmn-blue to-blue-700"/>
+                        <div className="w-full h-full bg-gradient-to-r"/>
                     )}
 
                     {isSameUser && <BannerDialogContent creator={creator}/>}
@@ -82,10 +84,8 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
                     {/* Profile Section */}
                     <div className="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-10 mb-6">
                         <div
-                            className="w-44 h-44 flex items-center justify-center border-white border-4 rounded-full overflow-hidden shadow-lg">
-                            {isSameUser ? (
-                                <CreatorAvatar user={auth}/>
-                            ) : (
+                            className="w-44 h-44 flex items-center justify-center border-background border-4 rounded-full overflow-hidden shadow-lg">
+                            {
                                 <Avatar className="w-full h-full">
                                     {creator.profilePicture ? (
                                         <Image
@@ -101,14 +101,15 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
                                         </AvatarFallback>
                                     )}
                                 </Avatar>
-                            )}
+                            }
                         </div>
 
                         <div
                             className="flex flex-col md:flex-row items-center md:items-end justify-between w-full pb-3 gap-4">
                             <div className="text-center md:text-left">
                                 <h1 className="text-2xl md:text-3xl font-bold">{creator.userName}</h1>
-                                <p className="text-gray-600 mt-1 max-w-md line-clamp-2">
+                                {/* Updated text color for theme compatibility */}
+                                <p className="text-muted-foreground mt-1 max-w-md line-clamp-2">
                                     {creator.creatorBio || "Creator on our platform"}
                                 </p>
                             </div>
@@ -119,58 +120,25 @@ export default async function CreatorLayout({children, params}: CreatorLayoutPro
                                         <DonationDialog userName={creator.userName} creatorId={creator.creatorId}/>
                                     </div>
                                 )}
-                                <span className="text-sm text-gray-600">
+                                {/* Updated text color for theme compatibility */}
+                                <span className="text-sm text-muted-foreground">
                                     <FollowButton creatorId={creator.creatorId} isSameUser={isSameUser}/>
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Navigation Tabs */}
 
                     {
                         !isSameUser &&
-                        <div className="border-b border-gray-200 mb-6">
-                            <nav className="flex space-x-8 overflow-x-auto">
-                                <Link
-                                    href={`/${creator.userName}`}
-                                    className={`py-3 px-1 border-b-2 text-sm font-medium transition-colors
-                  ${parameters.username && !parameters.segment?.includes('/mem') ?
-                                        'border-yinmn-blue text-yinmn-blue' :
-                                        'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-                                >
-                                    About
-                                </Link>
-
-                                {(creator.hasPosts || isSameUser) && (
-                                    <Link
-                                        href={`/${creator.userName}/posts`}
-                                        className={`py-3 px-1 border-b-2 text-sm font-medium transition-colors
-                    ${parameters.username && parameters.segment?.includes('/manage-posts') ?
-                                            'border-yinmn-blue text-yinmn-blue' :
-                                            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-                                    >
-                                        Posts
-                                    </Link>
-                                )}
-
-                                {(creator.hasMembership || isSameUser) && (
-                                    <Link
-                                        href={`/${creator.userName}/memberships`}
-                                        className={`py-3 px-1 border-b-2 text-sm font-medium transition-colors
-                                            ${parameters.username && parameters.segment?.includes('/memberships') ?
-                                            'border-yinmn-blue text-yinmn-blue' :
-                                            'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
-                                    >
-                                        Memberships
-                                    </Link>
-                                )}
-                            </nav>
-                        </div>
+                        // Updated border color for theme compatibility
+                        <PageNavList creator={creator}/>
                     }
 
                     <div className="pb-12">
-                        {children}
+                        <Suspense fallback={<Loader/>}>
+                            {children}
+                        </Suspense>
                     </div>
                 </div>
             </main>

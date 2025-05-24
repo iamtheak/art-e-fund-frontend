@@ -6,52 +6,62 @@ import {format} from "date-fns";
 import {useRouter} from "next/navigation";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
-import {PenLine, Trash, Eye} from "lucide-react";
+import {Eye, PenLine, Trash} from "lucide-react";
 import {useToast} from "@/hooks/use-toast";
-import {Post} from "@/app/(pages)/manage-posts/action";
+import {deletePost, Post} from "@/app/(pages)/manage-posts/action";
+import {ConfirmationDialog} from "@/components/confirmation-dialog/confirmation-dialog";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 
 interface PostListProps {
     posts: Post[];
     onEdit: (post: Post) => void;
     onDelete: (postId: number) => Promise<void>;
     isLoading: boolean;
+    creatorId: number;
 }
 
-export function PostList({posts, onEdit, onDelete, isLoading}: PostListProps) {
+export function PostList({posts, onEdit, onDelete, isLoading, creatorId}: PostListProps) {
     const {toast} = useToast();
     const router = useRouter();
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
-    const handleDelete = async (postId: number) => {
-        if (!confirm("Are you sure you want to delete this post?")) return;
+    const [open, setOpen] = useState(false);
 
-        setDeletingId(postId);
-        try {
-            await onDelete(postId);
+
+    const client = useQueryClient();
+    const mutation = useMutation({
+        mutationFn: (postId: number) => deletePost(postId),
+        onSuccess: async () => {
             toast({title: "Success", description: "Post deleted successfully"});
-        } catch (error) {
-            console.error("Failed to delete post", error);
+            setOpen(false);
+            await client.invalidateQueries({queryKey: ["posts", creatorId]});
+        },
+        onError: () => {
             toast({
                 title: "Error",
                 description: "Failed to delete post",
                 variant: "destructive"
             });
-        } finally {
-            setDeletingId(null);
+            setDeletingId(null)
         }
+    })
+    const handleDelete = async () => {
+        await mutation.mutateAsync(Number(deletingId));
     };
 
     if (posts.length === 0) {
         return (
             <div className="text-center py-10">
                 <p className="text-muted-foreground mb-4">You haven&#39;t created any posts yet.</p>
-                <Button onClick={() => router.push("/manage-posts/create")}>Create Your First Post</Button>
+                <Button onClick={() => router.push("/manage-posts?create=true")}>Create Your First Post</Button>
             </div>
         );
     }
 
     return (
         <div className="space-y-4">
+            <ConfirmationDialog action={handleDelete} description={"Are you sure you want to delete this post"}
+                                open={open} setOpen={setOpen} actionVariant={"destructive"} title={"Delete Post"}/>
             {posts.map((post) => (
                 <Card key={post.postId} className={post.isMembersOnly ? "border-amber-500" : ""}>
                     <CardHeader>
@@ -75,7 +85,10 @@ export function PostList({posts, onEdit, onDelete, isLoading}: PostListProps) {
                                     size="sm"
                                     variant="ghost"
                                     className="text-red-500 hover:text-red-700"
-                                    onClick={() => handleDelete(post.postId)}
+                                    onClick={() => {
+                                        setOpen(true);
+                                        setDeletingId(post.postId);
+                                    }}
                                     disabled={deletingId === post.postId}
                                 >
                                     {deletingId === post.postId ? (

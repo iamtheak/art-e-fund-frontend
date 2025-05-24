@@ -92,7 +92,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="w-full min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="w-full min-h-screen flex items-center justify-center shadow-lg ">
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle className="text-2xl font-bold text-center">
@@ -129,16 +129,16 @@ export default function LoginPage() {
                             />
                         </div>
 
-                        <Button className="w-full relative" type="submit"  disabled={isSubmitting}>
+                        <Button className="w-full relative" type="submit" disabled={isSubmitting}>
                             {
-                                isSubmitting && <Loader />
+                                isSubmitting && <Loader/>
                             }
                             Sign In
                         </Button>
                         <div className="relative">
                             <Separator/>
                             <span
-                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">
+                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2  px-2 text-sm text-gray-500">
                 Or
               </span>
                         </div>

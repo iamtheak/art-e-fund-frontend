@@ -76,6 +76,7 @@ export default function MembershipDialog({action, defaultValues, refetch, setOpe
                         Membership Description
                     </Label>
                     <Textarea {...form.register("membershipBenefits")} className={"resize-none"}/>
+                    <p className={"text-red-400 text-sm"}>{form.formState.errors.membershipBenefits?.message}</p>
                 </div>
 
                 <BaseInput {...form.register("membershipAmount")} label={"Membership amount"}

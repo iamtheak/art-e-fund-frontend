@@ -9,11 +9,16 @@ export default async function Page({
     const slug = (await params).username;
     const data = await getCreatorMemberships(slug);
 
+    const sortedData = data?.sort((a, b) => {
+        return a.membershipTier > b.membershipTier ? 1 : -1;
+    })
+
     return (
-        <div className={"p-5 h-[60dvh] bg-emerald rounded-md m-10 flex flex-col gap-4 justify-center items-center"}>
+        <div
+            className={"p-5 min-h-[60dvh] w-full bg-[#FAFAFA] dark:bg-slate-900 rounded-md m-10 flex flex-col gap-4 justify-center items-center"}>
             <h2 className={"text-3xl mb-10"}>Become a member of {slug}</h2>
-            <div className={"flex flex-wrap gap-4 justify-center "}>
-                {data && data.length > 0 && data.map((membership) => {
+            <div className={"flex gap-4 justify-center flex-wrap"}>
+                {sortedData && sortedData.length > 0 && sortedData.map((membership) => {
                     return (<MembershipProfileCard key={membership.membershipId} membership={membership}/>)
                 })}
             </div>

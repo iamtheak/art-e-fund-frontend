@@ -89,3 +89,55 @@ export async function updateProfile(data: TProfileFormValues, userProfileUrl: st
         return null;
     }
 }
+
+export async function getCreatorApiKey(creatorId: number): Promise<string | null> {
+    // Ensure only the authenticated creator can fetch their key
+    const user = await getUserFromSession();
+    if (user?.creatorId !== creatorId) {
+        console.error("Unauthorized attempt to fetch API key.");
+        return null; // Or throw an error
+    }
+
+    try {
+        // This is a placeholder. Your actual API endpoint might differ.
+        // It should securely fetch the API key for the creator.
+        const response = await axiosInstance.get<{ apiKey: string }>(`${API_ROUTES.CREATOR.API_KEY}/${creatorId}`);
+        return response.data.apiKey ?? null;
+    } catch (error) {
+        console.error("Error fetching creator API key:", error);
+        return null; // Return null on error
+    }
+}
+
+export async function updateCreatorApiKey(creatorId: number, apiKey: string): Promise<{
+    success: boolean;
+    message?: string
+}> {
+    const user = await getUserFromSession();
+    if (user?.creatorId !== creatorId) {
+        return {success: false, message: "Unauthorized."};
+    }
+
+    try {
+        await axiosInstance.post(`${API_ROUTES.CREATOR.API_KEY}/${creatorId}`, {apiKey});
+        return {success: true};
+    } catch (error) {
+        console.error("Error updating creator API key:", error);
+        return {success: false, message: "Failed to update API key."};
+    }
+}
+
+
+export async function deleteCreatorApiKey(): Promise<{ success: boolean; message?: string }> {
+    const user = await getUserFromSession();
+
+    const creatorId = user?.creatorId ?? 0;
+
+    try {
+        await axiosInstance.delete(`${API_ROUTES.CREATOR.API_KEY}/${creatorId}`);
+        return {success: true};
+    } catch (error) {
+        console.error("Error deleting creator API key:", error);
+        return {success: false, message: "Failed to delete API key."};
+    }
+}

@@ -8,12 +8,7 @@ import {Button} from "@/components/ui/button";
 import {useToast} from "@/hooks/use-toast";
 import {TProfileFormValues} from "@/app/(pages)/(settings)/profile/types";
 import {profileFormSchema} from "@/app/(pages)/(settings)/profile/validator";
-import {
-    addProfilePicture,
-    removePicture,
-    removeProfilePicture,
-    updateProfile
-} from "@/app/(pages)/(settings)/profile/action";
+import {addProfilePicture, updateProfile} from "@/app/(pages)/(settings)/profile/action";
 import {useSession} from "next-auth/react";
 import ImageInput from "@/components/image-input/image-input";
 import {useState} from "react";
@@ -52,7 +47,6 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
             setCurrentProfilePicture(profilePictureUrl ?? "")
         }
 
-        console.log(profilePictureUrl);
         const user = await updateProfile(data, profilePictureUrl ?? originalProfilePicture);
 
         if (user === null) {
@@ -89,7 +83,7 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
                         <FormItem>
                             <FormLabel>Firstname</FormLabel>
                             <FormControl>
-                                <Input placeholder="shadcn" {...field} />
+                                <Input placeholder="Jhon" {...field} />
                             </FormControl>
                             <FormMessage/>
                         </FormItem>
@@ -103,7 +97,7 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
                         <FormItem>
                             <FormLabel>Lastname</FormLabel>
                             <FormControl>
-                                <Input placeholder="shadcn" {...field} />
+                                <Input placeholder="Doe" {...field} />
                             </FormControl>
 
                             <FormMessage/>
@@ -118,7 +112,7 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
                         <FormItem>
                             <FormLabel>Username</FormLabel>
                             <FormControl>
-                                <Input placeholder="shadcn" {...field} />
+                                <Input placeholder="jhondoe123" {...field} />
                             </FormControl>
                             <FormDescription>
                                 This is your public display name. It can be your real name or a
@@ -136,8 +130,9 @@ export function ProfileForm({defaultValues, originalProfilePicture}: {
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input placeholder="xyz@abc.com" {...field} />
+                                <Input disabled placeholder="xyz@abc.com" {...field} />
                             </FormControl>
+                            <FormMessage/>
                         </FormItem>
                     )}
                 />

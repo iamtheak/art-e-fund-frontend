@@ -4,7 +4,8 @@ import {CreatorForm} from "./creator-form";
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import {getCreatorById} from "@/app/(pages)/view-memberships/action";
 import {getFollowers} from "@/app/[username]/action";
-import FollowerList from "./follower-list"; // Import the FollowerList component
+import FollowerList from "./follower-list";
+import CreatorApi from "@/app/(pages)/(settings)/profile/@creator/creator-api"; // Import the FollowerList component
 
 export default async function CreatorProfilePage() {
     const queryClient = new QueryClient();
@@ -46,7 +47,10 @@ export default async function CreatorProfilePage() {
                 {/* Render the Follower List */}
                 <FollowerList creatorId={creatorId}/>
                 {/* Render the Creator Form */}
-                <div className="mt-6 bg-white shadow-md rounded-lg p-6">
+                <div>
+                    <CreatorApi creatorId={creatorId}/>
+                </div>
+                <div className="mt-6 shadow-md rounded-lg p-6">
 
                     <CreatorForm creatorId={creatorId}/>
                 </div>

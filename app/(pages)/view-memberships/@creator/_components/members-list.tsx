@@ -80,7 +80,8 @@ export default function MembersList({creatorId}: { creatorId: number | string })
                                              className="flex items-center justify-between border-b pb-3">
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
-                                                    <AvatarImage src={`https://avatar.vercel.sh/${member.userName}`}/>
+                                                    <AvatarImage
+                                                        src={member.profilePicture || `https://avatar.vercel.sh/${member.userName}`}/>
                                                     <AvatarFallback>{member.userName.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                 </Avatar>
                                                 <div>

@@ -11,9 +11,6 @@ import {
     SidebarMenuItem,
     SidebarRail
 } from "@/components/ui/sidebar"
-import {signOut} from "@/auth";
-import {redirect} from "next/navigation";
-import {Button} from "@/components/ui/button";
 import LogoutButton from "@/components/logout-button";
 
 export type TSideBarData = {
@@ -37,17 +34,18 @@ export function AppSidebar({data, children, ...props}: {
 
     return (
         <Sidebar {...props} collapsible={"offcanvas"} variant={"inset"}>
-            <SidebarContent className="bg-white border-r relative">
+            {/* Updated className for theme compatibility */}
+            <SidebarContent className="bg-background border-r border-border relative">
                 {/* We create a SidebarGroup for each parent. */}
                 {data.navMain.map((item) => (
                     <SidebarGroup key={item.title}>
                         <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
-                                {item.items.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild isActive={item.isActive}>
-                                            <a href={item.url}>{item.title}</a>
+                                {item.items.map((subItem) => ( // Changed item to subItem to avoid conflict
+                                    <SidebarMenuItem key={subItem.title}>
+                                        <SidebarMenuButton asChild isActive={subItem.isActive}>
+                                            <a href={subItem.url}>{subItem.title}</a>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}

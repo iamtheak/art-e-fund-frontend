@@ -39,7 +39,7 @@ export default function MembershipProfileCard({membership}: TMembershipProfileCa
         }
     })
     return (
-        <Card className={"md:h-[300px] flex flex-col gap-4 justify-between"}>
+        <Card className={"w-full lg:w-[320px] md:h-[300px] flex flex-col gap-4 justify-between"}>
             <CardHeader>
                 <h1 className={"text-xl font-bold"}>{membership.membershipName}</h1>
             </CardHeader>
@@ -47,14 +47,14 @@ export default function MembershipProfileCard({membership}: TMembershipProfileCa
                 <p>
                     Rs: {membership.membershipAmount}/month
                 </p>
-                <Button disabled={mutation.isPending || !!enrolledMembership} onClick={async () => {
+                <Button disabled={mutation.isPending || enrolledMembership?.isActive} onClick={async () => {
                     if (session.status !== "authenticated") {
                         toast({title: "Error", description: "You need to be logged in to enroll in a membership"})
                         return
                     }
                     await mutation.mutateAsync()
                 }} className={"w-full rounded-full"}>
-                    {!!enrolledMembership ? "Enrolled" : "Enroll"}
+                    {enrolledMembership?.isActive ? "Enrolled" : "Enroll"}
                 </Button>
             </CardContent>
             <CardFooter>

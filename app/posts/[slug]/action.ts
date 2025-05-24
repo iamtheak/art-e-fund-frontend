@@ -36,6 +36,17 @@ export async function getPostBySlug(slug: string): Promise<Post> {
     }
 }
 
+export async function getPostViewAccess(postId: number, userId: number): Promise<boolean> {
+    try {
+        const response = await axiosInstance.get(`${API_ROUTES.POST.BASE}/${postId}/view/${userId}`);
+        return response.data;
+    } catch (error) {
+
+        console.log(error.config)
+        return false;
+    }
+}
+
 // Get post comments
 export async function getPostComments(postId: number): Promise<Comment[]> {
     try {
@@ -102,7 +113,15 @@ export async function getPostLikes(postId: number): Promise<Like[]> {
     try {
         const response = await axiosInstance.get(`${API_ROUTES.POST.LIKE.POST}/${postId}`);
         return response.data;
-    } catch (error) {
+    } catch {
         return []
+    }
+}
+
+export async function addPostView(postId: number) {
+    try {
+        await axiosInstance.post(`${API_ROUTES.POST.BASE}/view?postId=${postId}`);
+    } catch {
+        return false;
     }
 }

@@ -27,7 +27,6 @@ export default function CreatorAvatar({user}: { user: TUser }) {
 
             <BaseDialog title={"Update your profile"} isOpen={isOpen} setIsOpen={setIsOpen}>
                 <ImageInput image={user.profilePicture} onCropComplete={(croppedImageData) => {
-                    console.log("asdf", croppedImageData)
                 }}/>
             </BaseDialog>
         </>

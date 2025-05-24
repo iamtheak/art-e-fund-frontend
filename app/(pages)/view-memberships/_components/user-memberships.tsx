@@ -1,12 +1,12 @@
 // app/(pages)/view-memberships/_components/user-memberships.tsx
 "use client"
 
-import {useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {format} from "date-fns";
 import {TCreator, TEnrolledMembership} from "@/global/types";
-import {getEMByUserId, getCreatorById} from "../action";
+import {getEMByUserId, getCreatorById, endEnrolledMembership} from "../action";
 import {useSession} from "next-auth/react";
 import Link from "next/link";
 import {Badge} from "@/components/ui/badge";
@@ -14,6 +14,9 @@ import {Dispatch, SetStateAction, useState} from "react";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Button} from "@/components/ui/button";
 import ChangeDialog from "@/app/(pages)/view-memberships/_components/change-dialog";
+import {ConfirmationDialog} from "@/components/confirmation-dialog/confirmation-dialog";
+import {useToast} from "@/hooks/use-toast";
+import {cli} from "yaml/dist/cli";
 
 export default function UserMemberships() {
     const {data: session} = useSession();
@@ -21,7 +24,10 @@ export default function UserMemberships() {
     const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
     const [selectedMembership, setSelectedMembership] = useState<TEnrolledMembership>({} as TEnrolledMembership);
     const [showChangeDialog, setShowChangeDialog] = useState(false);
+    const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false);
 
+
+    const {toast} = useToast();
     const {data: enrolledMemberships, isLoading, error} = useQuery({
         queryKey: ["user-memberships", userId],
         queryFn: () => getEMByUserId(userId || 0),
@@ -29,6 +35,30 @@ export default function UserMemberships() {
         staleTime: Infinity,
     });
 
+    const client = useQueryClient();
+
+    const endMembership = useMutation({
+        mutationFn: (enrolledMembershipId: number) => endEnrolledMembership(enrolledMembershipId),
+        onSuccess: async () => {
+            setIsConfirmationDialogOpen(false);
+            toast({
+                title: "Success",
+                description: "Membership cancelled successfully",
+            })
+
+            await client.invalidateQueries({
+                queryKey: ["user-memberships", userId],
+            })
+        },
+        onError: (error) => {
+            setIsConfirmationDialogOpen(false);
+            toast({
+                title: "Error",
+                description: "Failed to cancel membership",
+                variant: "destructive",
+            })
+        }
+    })
     if (isLoading) return <div className="text-center py-4">Loading your memberships...</div>;
     if (error) return <div className="text-center py-4 text-red-500">Failed to load memberships</div>;
     if (!enrolledMemberships || enrolledMemberships.length === 0) {
@@ -41,8 +71,14 @@ export default function UserMemberships() {
         return statusFilter === "active" ? membership.isActive : !membership.isActive;
     });
 
+
     return (
         <div className="space-y-6">
+            <ConfirmationDialog
+                action={async () => await endMembership.mutateAsync(selectedMembership.enrolledMembershipId)}
+                description={"Cancel your membership? You will not be refunded"} open={isConfirmationDialogOpen}
+                setOpen={setIsConfirmationDialogOpen} title={"Cancel your membership?"} actionVariant={"destructive"}/>
+
             <div className="flex justify-between items-center">
                 <div className="text-sm text-muted-foreground">
                     Total: {enrolledMemberships.length} membership{enrolledMemberships.length !== 1 ? 's' : ''}
@@ -69,7 +105,7 @@ export default function UserMemberships() {
                 filteredMemberships.map((membership) => (
                     <MembershipCard key={membership.enrolledMembershipId} membership={membership}
                                     setSelectedMembership={setSelectedMembership}
-                                    setShowChangeDialog={setShowChangeDialog}/>
+                                    setShowChangeDialog={setShowChangeDialog} setIsOpen={setIsConfirmationDialogOpen}/>
                 ))
             )}
             <ChangeDialog isOpen={showChangeDialog} setIsOpen={setShowChangeDialog}
@@ -79,10 +115,11 @@ export default function UserMemberships() {
     );
 }
 
-function MembershipCard({membership, setSelectedMembership, setShowChangeDialog}: {
+function MembershipCard({membership, setSelectedMembership, setShowChangeDialog, setIsOpen}: {
     membership: TEnrolledMembership,
     setSelectedMembership: Dispatch<SetStateAction<TEnrolledMembership>>,
-    setShowChangeDialog: Dispatch<SetStateAction<boolean>>
+    setShowChangeDialog: Dispatch<SetStateAction<boolean>>,
+    setIsOpen: Dispatch<SetStateAction<boolean>>,
 }) {
 
     const {data: creator, isLoading} = useQuery<TCreator>({
@@ -125,20 +162,30 @@ function MembershipCard({membership, setSelectedMembership, setShowChangeDialog}
                             <p className="text-sm text-muted-foreground">{creator.firstName} {creator.lastName}</p>
                         </div>
                     </div>
-                    <div className={"space-x-2"}>
+                    <div className={"space-y-2"}>
                         <Badge variant={membership.isActive ? "default" : "outline"}
                                className={membership.isActive ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-red-100"}>
                             {membership.isActive ? "Active" : "Inactive"}
                         </Badge>
                         {
                             membership.isActive &&
-                            <Button onClick={() => {
-                                setSelectedMembership(membership);
-                                setShowChangeDialog(true)
-                            }
-                            }>
-                                Upgrade
-                            </Button>
+                            (
+                                <div className={"flex gap-5"}>
+                                    <Button onClick={() => {
+                                        setSelectedMembership(membership);
+                                        setShowChangeDialog(true)
+                                    }
+                                    }>
+                                        Upgrade
+                                    </Button>
+                                    <Button type={"button"} variant={"destructive"} onClick={() => {
+                                        setSelectedMembership(membership);
+                                        setIsOpen(true)
+                                    }}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                            )
                         }
                     </div>
                 </div>

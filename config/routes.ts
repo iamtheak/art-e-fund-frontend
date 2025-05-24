@@ -33,7 +33,8 @@ export const API_ROUTES = {
         COMMENT: {
             BASE: "/post/comment",
             POST: "/post/comments",
-        }
+        },
+        TOP: "/post/top",
     },
     CREATOR: {
         BASE: "/creators",
@@ -47,6 +48,7 @@ export const API_ROUTES = {
         FOLLOWERS: "/creators/followers", // Base path for GET: /followers/{creatorId}
         FOLLOWER_COUNT: "/creators/follower-count", // Base path for GET: /follower-count/{creatorId}
         FOLLOWING: "/creators/following", // Base
+        API_KEY: "/creators/api-key",
     },
     MEMBERSHIP: {
         BASE: "/membership",
@@ -57,8 +59,8 @@ export const API_ROUTES = {
         },
         ENROLL: "/membership/enroll",
         CHANGE: "/membership/change",
-        END: "/membership/end",
         ENROLLED: {
+            END: "/membership/enrolled/end",
             USER: "/membership/enrolled/user",
             CREATOR: "/membership/enrolled/creator",
         },
@@ -87,16 +89,17 @@ export const API_ROUTES = {
 
 
 export const AUTHENTICATED_ROUTES = [
-    "/home",
     "/explore",
     "/view-donations",
     "/view-memberships",
-    "/settings",
     "/profile",
-    "/account",
 ]
 
 export const CREATOR_ROUTES = [
-    "/manage-posts",
-    "/analytics",
+    "/posts",
+    "/home",
+]
+
+export const ADMIN_ROUTES = [
+    "/dashboard",
 ]

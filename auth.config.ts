@@ -49,7 +49,7 @@ export const authConfig = {
 
                     if (user.role === "creator") {
 
-                        const creator = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USERNAME + user.userName)
+                        const creator = await axiosInstance.get<TCreator>(API_ROUTES.CREATOR.USER_ID + user.userId)
 
                         user = {
                             ...user,

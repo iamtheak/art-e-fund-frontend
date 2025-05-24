@@ -44,8 +44,8 @@ export default async function VerifyAccountPage({searchParams}: VerifyAccountPag
     }
 
     return (
-        <div className="w-full flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-            <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-md">
+        <div className="w-full flex min-h-screen flex-col items-center justify-center  p-4">
+            <div className="w-full max-w-md rounded-lg dark:bg-slate-900  p-8 text-center shadow-md">
                 <h1 className="mb-6 text-2xl font-bold">Account Verification</h1>
                 {verificationResult ? (
                     <>

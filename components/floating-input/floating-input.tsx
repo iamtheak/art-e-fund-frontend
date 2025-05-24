@@ -47,7 +47,7 @@ const FloatingInput = <T extends FieldValues>({
                 />
 
                 <Label
-                    className="floating-label absolute z-30 text-center text-xs text-primary transition-all pointer-events-none -top-2 left-4 w-auto h-5 bg-white leading-0 peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-[9px] px-1 peer-focus:-top-2
+                    className="floating-label absolute z-30 text-center text-xs text-primary transition-all pointer-events-none -top-2 left-4 w-auto h-5 dark:bg-slate-950 bg-white leading-0 peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-[9px] px-1 peer-focus:-top-2
                     peer-focus:w-auto peer-focus:text-primary peer-focus:px-1
                     peer-fouse:leading-0 peer-focus:text-xs"
                 >

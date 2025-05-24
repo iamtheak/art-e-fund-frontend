@@ -2,10 +2,11 @@
 "use client";
 
 import {useQuery} from "@tanstack/react-query";
-import {getPostBySlug, getPostComments, getPostLikes} from "../action";
+import {addPostView, getPostBySlug, getPostComments, getPostLikes} from "../action";
 import {PostDetails} from "./post-details";
 import {CommentSection} from "./comment-section";
 import {Separator} from "@/components/ui/separator";
+import {useEffect} from "react";
 
 export default function PostContainer({slug, userId}: { slug: string, userId: number }) {
     // Query for post data
@@ -26,6 +27,7 @@ export default function PostContainer({slug, userId}: { slug: string, userId: nu
             </div>
         );
     }
+
 
     return (
         <>

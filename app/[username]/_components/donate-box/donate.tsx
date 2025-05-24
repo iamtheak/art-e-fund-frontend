@@ -28,6 +28,17 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
             return submitDonation(data);
         },
         onSuccess: async (data) => {
+
+
+            if (!data.success) {
+                return toast({
+                        title: "Error",
+                        description: data.message,
+                        variant: "destructive",
+                    }
+                )
+            }
+
             toast({
                 title: "Success!",
                 description: `Your donation has been verified and is being processed.`,
@@ -73,9 +84,11 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
             {
                 mutation.isPending && <Loader text="You will be redirected to khalti payment page"/>
             }
-            <div className={"p-5 bg-mint rounded-md relative"}>
+            {/* Assuming 'bg-mint' is a brand color and should remain consistent */}
+            <div className={"p-5 dark:text-white dark:bg-slate-900 rounded-md relative shadow-lg"}>
 
-                <h2 className={"text-xl mb-2"}>
+                {/* Updated text color for dark mode compatibility on mint background */}
+                <h2 className={"text-xl mb-2 text-slate-800 dark:text-slate-100"}>
                     Donate to {userName}
                 </h2>
 
@@ -90,19 +103,22 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
                             }
                             setAmount(parseInt(e.target.value));
                         }}
-                        className={"p-2 bg-white rounded-md w-full"}
+                        // Updated background for theme compatibility
+                        className={"p-2 bg-background rounded-md w-full"}
                         placeholder={"Amount"}
                     />
 
                     <Textarea
-                        className={"p-2 bg-white rounded-md w-full"}
+                        // Updated background for theme compatibility
+                        className={"p-2 bg-background rounded-md w-full"}
                         placeholder={"Message"}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                     />
                     {
                         session.data?.user && (
-                            <div className="flex items-center space-x-2 text-">
+                            // Label component should be theme-aware by default
+                            <div className="flex items-center space-x-2">
                                 <Checkbox
                                     id="anonymous"
                                     checked={isAnonymous}
@@ -113,6 +129,7 @@ export default function DonateBox({userName, creatorId}: TDonationProps) {
                     }
 
                     <Button
+                        // Assuming 'bg-yinmn-blue text-white' is a brand color combination
                         className={"bg-yinmn-blue text-white p-2 rounded-md"}
                         onClick={handleSubmit}
                         disabled={mutation.isPending}

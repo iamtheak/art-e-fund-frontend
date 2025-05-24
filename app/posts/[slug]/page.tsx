@@ -1,10 +1,14 @@
 // app/posts/[slug]/page.tsx
-import {getPostBySlug, getPostComments, getPostLikes} from "./action";
+import {getPostBySlug, getPostComments, getPostLikes, getPostViewAccess} from "./action";
 import {Metadata} from "next";
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import PostContainer from "./_components/post-container";
 import {getUserFromSession} from "@/global/helper";
 import {Post} from "@/app/(pages)/manage-posts/action";
+import NoAccess from "@/app/posts/[slug]/_components/no-access";
+import Link from "next/link";
+import {Button} from "@/components/ui/button"; // Import Button component
+import {ChevronLeft} from "lucide-react"; // Import an icon for the button
 
 export async function generateMetadata({params}: { params: { slug: string } }): Promise<Metadata> {
 
@@ -45,14 +49,27 @@ export default async function PostPage({params}: { params: { slug: string } }) {
     if (userId !== 0) {
         userId = Number(userId);
     }
-    // Prefetch post data
+
     await queryClient.prefetchQuery({
         queryKey: ["post", slug],
         queryFn: () => getPostBySlug(slug),
     });
 
+
     // Get post from cache to prefetch related data
     const post = queryClient.getQueryData(["post", slug]) as Post;
+
+
+    if (userId == 0 && post?.isMembersOnly) {
+        return (<NoAccess/>)
+    } else {
+        const access = await getPostViewAccess(post?.postId ?? 0, userId);
+
+        if (!access) {
+            return (<NoAccess/>)
+        }
+    }
+
 
     if (post?.postId) {
         // Prefetch comments and likes
@@ -68,8 +85,17 @@ export default async function PostPage({params}: { params: { slug: string } }) {
         ]);
     }
 
+
     return (
         <div className="container mx-auto py-8">
+            <div className="mb-6"> {/* Added margin-bottom for spacing */}
+                <Link href="/explore" legacyBehavior>
+                    <Button variant="outline">
+                        <ChevronLeft className="mr-2 h-4 w-4"/>
+                        Back to Explore
+                    </Button>
+                </Link>
+            </div>
             <div className="max-w-3xl mx-auto">
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <PostContainer userId={userId} slug={slug}/>

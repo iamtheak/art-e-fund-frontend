@@ -16,8 +16,8 @@ import {getContentTypes} from "@/app/new-signin/content/action";
 import Loader from "@/components/loader";
 
 const creatorFormSchema = z.object({
-    bio: z.string().max(160, "Bio must be 160 characters or less"),
-    description: z.string().max(500, "Description must be 500 characters or less"),
+    bio: z.string().min(10,"Bio must be at least 10 characters").max(160, "Bio must be 160 characters or less"),
+    description: z.string().min(50, "Description should be at least 50 characters").max(500, "Description must be 500 characters or less"),
     contentType: z.coerce.number()
 });
 
@@ -56,9 +56,9 @@ export function CreatorForm({creatorId}: { creatorId: number }) {
         mutationFn: async (data: CreatorFormValues) => {
             return UpdateCreatorDetails({
                 ...creator,
-                creatorBio: data.bio,
-                creatorDescription: data.description,
-                contentType: data.contentType,
+                creatorBio: data.bio ?? "",
+                creatorDescription: data.description ?? "",
+                contentType: data.contentType ?? "",
             });
         },
         onSuccess: async () => {
